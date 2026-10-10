@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.env
+venv/
+ENV/
+
+# Jarvis Runtime & Cache
+browser_profile/
+static/audio_cache/
+screenshots/
+config.json
+
+# OS & Editors
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini

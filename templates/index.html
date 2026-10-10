@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J.A.R.V.I.S. // STARK INDUSTRIES OS</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+</head>
+<body class="system-active">
+    <!-- Sci-Fi Scanlines & Background Grid -->
+    <div class="hud-overlay"></div>
+    <div class="hud-vignette"></div>
+
+    <!-- MAIN INTERFACE CONTAINER -->
+    <div class="jarvis-container">
+        
+        <!-- TOP HUD BAR -->
+        <header class="top-hud">
+            <div class="hud-bracket left"></div>
+            <div class="brand-zone">
+                <div class="stark-logo">STARK INDUSTRIES</div>
+                <div class="protocol-name">J.A.R.V.I.S. // MARK VII INTERFACE</div>
+            </div>
+
+            <div class="status-center">
+                <div class="status-badge" id="systemStatusBadge">
+                    <span class="status-dot"></span>
+                    <span class="status-text" id="systemStateText">ONLINE // LISTENING</span>
+                </div>
+            </div>
+
+            <div class="telemetry-clock">
+                <div class="time-display" id="hudClock">12:00:00 PM</div>
+                <div class="date-display" id="hudDate">STANDBY</div>
+            </div>
+            <div class="hud-bracket right"></div>
+        </header>
+
+        <!-- MAIN WORKSPACE -->
+        <main class="hud-body">
+            
+            <!-- LEFT PANEL: SYSTEM TELEMETRY -->
+            <aside class="panel left-panel">
+                <div class="panel-header">
+                    <span class="panel-icon">⬡</span>
+                    <span class="panel-title">SYSTEM DIAGNOSTICS</span>
+                    <span class="panel-tag">SYS-702</span>
+                </div>
+
+                <div class="telemetry-group">
+                    <div class="metric-row">
+                        <div class="metric-info">
+                            <span class="metric-name">CPU CORE UTILIZATION</span>
+                            <span class="metric-val" id="cpuVal">0%</span>
+                        </div>
+                        <div class="meter-bar-container">
+                            <div class="meter-bar" id="cpuBar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="metric-row">
+                        <div class="metric-info">
+                            <span class="metric-name">RAM CAPACITY</span>
+                            <span class="metric-val" id="ramVal">0 GB / 0 GB</span>
+                        </div>
+                        <div class="meter-bar-container">
+                            <div class="meter-bar cyan" id="ramBar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="metric-row">
+                        <div class="metric-info">
+                            <span class="metric-name">PRIMARY STORAGE</span>
+                            <span class="metric-val" id="diskVal">0%</span>
+                        </div>
+                        <div class="meter-bar-container">
+                            <div class="meter-bar blue" id="diskBar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="metric-row">
+                        <div class="metric-info">
+                            <span class="metric-name">POWER CELLS (BATTERY)</span>
+                            <span class="metric-val" id="batVal">100%</span>
+                        </div>
+                        <div class="meter-bar-container">
+                            <div class="meter-bar gold" id="batBar" style="width: 100%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hardware Visualizer Radar -->
+                <div class="radar-box">
+                    <canvas id="radarCanvas" width="220" height="140"></canvas>
+                    <div class="radar-readout">SYSTEM INTEGRITY: 100%</div>
+                </div>
+
+                <!-- Voice Commands Quick Guide -->
+                <div class="voice-guide">
+                    <div class="guide-title">VOICE PROTOCOLS</div>
+                    <ul class="guide-list">
+                        <li>"Jarvis, open [Chrome / Spotify / App]"</li>
+                        <li>"Jarvis, volume up / down / mute"</li>
+                        <li>"Jarvis, play [song] on YouTube"</li>
+                        <li>"Jarvis, take a screenshot"</li>
+                        <li>"Jarvis, status report"</li>
+                        <li>"Jarvis, lock workstation"</li>
+                    </ul>
+                </div>
+            </aside>
+
+            <!-- CENTER: THE ARC REACTOR & AUDIO CORE -->
+            <section class="center-core">
+                <div class="arc-reactor-wrapper" id="arcReactorWrapper">
+                    
+                    <!-- Sound Wave Visualizer Canvas behind Arc Reactor -->
+                    <canvas id="visualizerCanvas" width="500" height="500"></canvas>
+
+                    <!-- Animated Holographic Arc Reactor -->
+                    <div class="arc-reactor" id="arcReactor" title="Click to Toggle JARVIS Power (Online / Standby)">
+                        <div class="ring outer-ring"></div>
+                        <div class="ring dashed-ring"></div>
+                        <div class="ring inner-ring"></div>
+                        <div class="ring core-bracket"></div>
+                        
+                        <!-- Center Core Power Bulb -->
+                        <div class="core-glow">
+                            <div class="core-triangles"></div>
+                            <div class="core-center-eye">
+                                <span class="power-glyph">⏻</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="core-label" id="coreLabel">ARC REACTOR: ACTIVE</div>
+                    <div class="core-subtext" id="coreSubtext">Continuous Voice Detection Engaged</div>
+                </div>
+
+                <!-- Live Voice Speech Waveform & State -->
+                <div class="speech-hud-box">
+                    <div class="speech-status-indicator" id="voiceStatusIndicator">
+                        <span class="indicator-pulse"></span>
+                        <span id="voiceStatusText">Listening for "Jarvis"...</span>
+                    </div>
+
+                    <!-- Spoken Transcript Banner -->
+                    <div class="transcript-display" id="transcriptDisplay">
+                        "Speak clearly into your microphone..."
+                    </div>
+                </div>
+            </section>
+
+            <!-- RIGHT PANEL: LOGS & AI CONVERSATION -->
+            <aside class="panel right-panel">
+                <div class="panel-header">
+                    <span class="panel-icon">◈</span>
+                    <span class="panel-title">VOICE TRANSMISSION LOG</span>
+                    <button class="clear-btn" id="clearLogsBtn">CLEAR</button>
+                </div>
+
+                <div class="log-stream" id="logStream">
+                    <div class="log-entry jarvis">
+                        <div class="log-meta">
+                            <span class="log-author">J.A.R.V.I.S.</span>
+                            <span class="log-time">STARTUP</span>
+                        </div>
+                        <div class="log-text">Good evening, sir. Mark VII online. I am listening for your voice commands.</div>
+                    </div>
+                </div>
+
+                <!-- Quick Action Bar -->
+                <div class="quick-commands">
+                    <button class="hud-pill" onclick="triggerPreset('Jarvis, status report')">Status</button>
+                    <button class="hud-pill" onclick="triggerPreset('Jarvis, volume up')">Vol +</button>
+                    <button class="hud-pill" onclick="triggerPreset('Jarvis, volume down')">Vol -</button>
+                    <button class="hud-pill" onclick="triggerPreset('Jarvis, take a screenshot')">Screenshot</button>
+                    <button class="hud-pill" onclick="triggerPreset('Jarvis, minimize all')">Desktop</button>
+                </div>
+
+                <!-- Text command backup input -->
+                <form class="text-input-form" id="commandForm">
+                    <input type="text" id="commandInput" placeholder="Enter command or speak..." autocomplete="off">
+                    <button type="submit" class="send-btn">TRANSMIT</button>
+                </form>
+            </aside>
+        </main>
+
+        <!-- FOOTER BAR -->
+        <footer class="bottom-hud">
+            <div class="audio-input-meter">
+                <span class="meter-label">MIC INPUT:</span>
+                <div class="audio-bars" id="audioBars">
+                    <span></span><span></span><span></span><span></span><span></span>
+                    <span></span><span></span><span></span><span></span><span></span>
+                </div>
+            </div>
+
+            <div class="system-controls">
+                <button class="hud-btn" id="togglePowerBtn">POWER: ONLINE</button>
+                <button class="hud-btn" id="micToggleBtn">MIC: ACTIVE</button>
+                <button class="hud-btn" id="settingsBtn">⚙ SETTINGS</button>
+            </div>
+        </footer>
+    </div>
+
+    <!-- SETTINGS MODAL -->
+    <div class="modal-backdrop" id="settingsModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2>STARK SYSTEM CONFIGURATION</h2>
+                <button class="close-modal-btn" id="closeSettingsBtn">✕</button>
+            </div>
+            <div class="modal-content">
+                <div class="form-group">
+                    <label>Gemini AI API Key (Optional for Deep Intelligence):</label>
+                    <input type="password" id="geminiApiKeyInput" placeholder="AIzaSy...">
+                    <small>Leave empty to use built-in offline Jarvis assistant mode.</small>
+                </div>
+                <div class="form-group">
+                    <label>Voice Synthesis Rate:</label>
+                    <select id="voiceRateSelect">
+                        <option value="-10%">Slow</option>
+                        <option value="+0%" selected>Standard (Default Jarvis)</option>
+                        <option value="+10%">Fast</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Callsign / Name:</label>
+                    <input type="text" id="userNameInput" value="Sir">
+                </div>
+                <div class="form-actions">
+                    <button class="save-settings-btn" id="saveSettingsBtn">SAVE PROTOCOLS</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/jarvis.js"></script>
+</body>
+</html>
