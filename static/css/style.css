@@ -153,6 +153,75 @@ body {
     letter-spacing: 1px;
 }
 
+/* ================= MICROPHONE PERMISSION BANNER ================= */
+.mic-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 20px;
+    background: rgba(255, 183, 3, 0.12);
+    border: 1px solid var(--hud-gold);
+    border-radius: 4px;
+    box-shadow: 0 0 15px rgba(255, 183, 3, 0.25);
+    transition: all 0.3s ease;
+}
+
+.mic-banner.granted {
+    background: rgba(0, 255, 170, 0.1);
+    border-color: var(--hud-green);
+    box-shadow: 0 0 15px rgba(0, 255, 170, 0.2);
+}
+
+.mic-banner.error {
+    background: rgba(255, 51, 102, 0.15);
+    border-color: var(--hud-red);
+    box-shadow: 0 0 15px rgba(255, 51, 102, 0.3);
+}
+
+.mic-banner-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.mic-pulse-icon {
+    font-size: 1.1rem;
+    animation: blink 1.5s infinite;
+}
+
+.mic-banner-text {
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    letter-spacing: 1.5px;
+    color: #fff;
+}
+
+.mic-action-btn {
+    background: var(--hud-gold);
+    color: #03080e;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    padding: 6px 14px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(255, 183, 3, 0.4);
+    transition: transform 0.2s, background 0.2s;
+}
+
+.mic-action-btn:hover {
+    transform: scale(1.04);
+    background: #ffc93c;
+}
+
+.mic-banner.granted .mic-action-btn {
+    background: var(--hud-green);
+    color: #03080e;
+    box-shadow: 0 0 10px rgba(0, 255, 170, 0.4);
+}
+
 /* ================= HUD BODY GRID ================= */
 .hud-body {
     display: grid;

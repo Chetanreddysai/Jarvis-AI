@@ -32,6 +32,15 @@ def launch_app_window(url="http://127.0.0.1:5000"):
     profile_dir = PROJECT_ROOT / "browser_profile"
     profile_dir.mkdir(parents=True, exist_ok=True)
 
+    flags = (
+        f'--app="{url}" '
+        f'--user-data-dir="{profile_dir}" '
+        '--use-fake-ui-for-media-stream '
+        f'--unsafely-treat-insecure-origin-as-secure="{url}" '
+        '--autoplay-policy=no-user-gesture-required '
+        '--start-maximized'
+    )
+
     # 1. Check Microsoft Edge (installed by default on Windows 10 & 11)
     edge_paths = [
         r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
@@ -40,7 +49,7 @@ def launch_app_window(url="http://127.0.0.1:5000"):
     ]
     for p in edge_paths:
         if p and os.path.exists(p):
-            cmd = f'"{p}" --app="{url}" --user-data-dir="{profile_dir}" --start-maximized'
+            cmd = f'"{p}" {flags}'
             print(f"[JARVIS Launch] Opening dedicated App Window via Edge: {cmd}")
             res = subprocess.Popen(cmd, shell=True)
             return
@@ -53,7 +62,7 @@ def launch_app_window(url="http://127.0.0.1:5000"):
     ]
     for p in chrome_paths:
         if p and os.path.exists(p):
-            cmd = f'"{p}" --app="{url}" --user-data-dir="{profile_dir}" --start-maximized'
+            cmd = f'"{p}" {flags}'
             print(f"[JARVIS Launch] Opening dedicated App Window via Chrome: {cmd}")
             subprocess.Popen(cmd, shell=True)
             return

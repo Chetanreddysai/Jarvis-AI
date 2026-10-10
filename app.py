@@ -13,6 +13,9 @@ from flask_cors import CORS
 import system_controller
 import voice_engine
 import jarvis_brain
+import time
+import threading
+import speech_recognition as sr
 
 app = Flask(__name__, static_folder="static", template_folder="templates")
 CORS(app)
@@ -26,6 +29,66 @@ APP_STATE = {
     "last_response": "Standing by, sir.",
     "is_speaking": False
 }
+
+LAST_COMMAND = {"text": "", "time": 0.0}
+
+def is_duplicate_command(text: str) -> bool:
+    now = time.time()
+    clean = text.lower().strip()
+    if clean == LAST_COMMAND["text"] and (now - LAST_COMMAND["time"]) < 3.0:
+        return True
+    LAST_COMMAND["text"] = clean
+    LAST_COMMAND["time"] = now
+    return False
+
+def start_native_microphone_worker():
+    """
+    Listens directly to the Windows microphone hardware in the background,
+    ensuring voice commands work even if browser microphone permission is blocked.
+    """
+    def listen_loop():
+        try:
+            r = sr.Recognizer()
+            r.dynamic_energy_threshold = True
+            r.pause_threshold = 0.8
+            mic = sr.Microphone()
+        except Exception as e:
+            print(f"[JARVIS Native Mic Notice]: {e}")
+            return
+
+        print("[JARVIS Background Mic]: Hardware listener active and ready.")
+        with mic as source:
+            try:
+                r.adjust_for_ambient_noise(source, duration=1.0)
+            except Exception:
+                pass
+            while True:
+                if not APP_STATE.get("is_active", True):
+                    time.sleep(1)
+                    continue
+                try:
+                    audio = r.listen(source, timeout=4, phrase_time_limit=8)
+                    raw_text = r.recognize_google(audio).strip()
+                    if raw_text and not is_duplicate_command(raw_text):
+                        lower = raw_text.lower()
+                        print(f"[JARVIS Hardware Audio]: '{raw_text}'")
+                        if "jarvis" in lower or any(lower.startswith(w) for w in ["open", "volume", "play", "screenshot", "status"]):
+                            APP_STATE["last_command"] = raw_text
+                            result = brain.process_command(raw_text)
+                            speech = result.get("speech", "")
+                            APP_STATE["last_response"] = speech
+                            voice_engine.synthesize_speech(speech)
+                            voice_engine.speak_direct(speech)
+                except sr.WaitTimeoutError:
+                    pass
+                except sr.UnknownValueError:
+                    pass
+                except Exception:
+                    time.sleep(0.5)
+
+    threading.Thread(target=listen_loop, daemon=True).start()
+
+start_native_microphone_worker()
 
 @app.route("/")
 def index():
@@ -84,6 +147,15 @@ def execute_command():
     command_text = data.get("text", "").strip()
     if not command_text:
         return jsonify({"success": False, "speech": "No command detected."})
+
+    if is_duplicate_command(command_text):
+        return jsonify({
+            "success": True,
+            "action": "duplicate_suppressed",
+            "command": command_text,
+            "speech": APP_STATE["last_response"],
+            "audio_url": ""
+        })
 
     APP_STATE["last_command"] = command_text
     

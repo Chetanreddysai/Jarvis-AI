@@ -37,8 +37,10 @@ const settingsModal = document.getElementById('settingsModal');
 const closeSettingsBtn = document.getElementById('closeSettingsBtn');
 const saveSettingsBtn = document.getElementById('saveSettingsBtn');
 const commandForm = document.getElementById('commandForm');
-const commandInput = document.getElementById('commandInput');
 const clearLogsBtn = document.getElementById('clearLogsBtn');
+const micBanner = document.getElementById('micBanner');
+const micBannerText = document.getElementById('micBannerText');
+const enableMicBtn = document.getElementById('enableMicBtn');
 
 // ================= 1. CLOCK & TELEMETRY =================
 
@@ -228,6 +230,60 @@ function playJarvisSpeech(audioUrl) {
 
 // ================= 5. REAL-TIME SPEECH RECOGNITION =================
 
+async function activateMicrophone() {
+    try {
+        initAudioContext();
+        micBannerText.textContent = "REQUESTING MICROPHONE PERMISSION...";
+        
+        // Explicitly trigger the browser's native microphone prompt
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        
+        // Successfully acquired stream!
+        micBanner.classList.remove('error');
+        micBanner.classList.add('granted');
+        micBannerText.textContent = "MICROPHONE ONLINE // CONTINUOUS VOICE DETECTION ENGAGED";
+        enableMicBtn.textContent = "MIC ACTIVE ✓";
+        enableMicBtn.style.background = "var(--hud-green)";
+        
+        isMicActive = true;
+        micToggleBtn.textContent = "MIC: ACTIVE";
+        micToggleBtn.style.borderColor = "var(--hud-cyan)";
+
+        // Start SpeechRecognition
+        startSpeechEngine();
+
+        // Auto-fade banner after 4 seconds
+        setTimeout(() => {
+            if (micBanner.classList.contains('granted')) {
+                micBanner.style.opacity = '0.5';
+            }
+        }, 4000);
+
+        return true;
+    } catch (err) {
+        console.error("Microphone permission failed:", err);
+        micBanner.classList.remove('granted');
+        micBanner.classList.add('error');
+        micBannerText.textContent = "MICROPHONE BLOCKED: Click 'ALLOW MICROPHONE' or open edge://settings/content/microphone";
+        enableMicBtn.textContent = "TRY AGAIN ↻";
+        enableMicBtn.style.background = "var(--hud-red)";
+        voiceStatusText.textContent = "Microphone Permission Required";
+        return false;
+    }
+}
+
+function startSpeechEngine() {
+    if (!recognition) {
+        initSpeechRecognition();
+    } else {
+        try {
+            recognition.start();
+        } catch (e) {
+            // Already started
+        }
+    }
+}
+
 function initSpeechRecognition() {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
@@ -243,6 +299,8 @@ function initSpeechRecognition() {
     recognition.onstart = () => {
         if (isSystemActive && isMicActive) {
             voiceStatusText.textContent = "Listening for 'Jarvis'...";
+            micBanner.classList.add('granted');
+            micBannerText.textContent = "MICROPHONE ONLINE // LISTENING";
         }
     };
 
@@ -262,7 +320,6 @@ function initSpeechRecognition() {
 
         if (interim) {
             transcriptDisplay.textContent = `"${interim.trim()}..."`;
-            // Animate input meter
             animateMicBars();
         }
 
@@ -274,7 +331,14 @@ function initSpeechRecognition() {
     };
 
     recognition.onerror = (event) => {
-        if (event.error !== 'no-speech') {
+        if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+            console.warn("Speech recognition permission denied:", event.error);
+            micBanner.classList.remove('granted');
+            micBanner.classList.add('error');
+            micBanner.style.opacity = '1';
+            micBannerText.textContent = "MICROPHONE BLOCKED: In Edge/Chrome, allow microphone for http://127.0.0.1:5000";
+            voiceStatusText.textContent = "Microphone Permission Blocked";
+        } else if (event.error !== 'no-speech') {
             console.warn("Speech error:", event.error);
         }
     };
@@ -486,13 +550,27 @@ saveSettingsBtn.addEventListener('click', async () => {
     }
 });
 
-// Startup Initialization
+// Startup & Microphone Activation Listeners
+if (enableMicBtn) {
+    enableMicBtn.addEventListener('click', activateMicrophone);
+}
+
+// On first user interaction anywhere in the window, activate mic and audio context
+window.addEventListener('click', (e) => {
+    // Avoid re-triggering if clicking specific modals
+    if (e.target && !e.target.closest('#settingsModal')) {
+        activateMicrophone();
+    }
+}, { once: true });
+
 window.addEventListener('DOMContentLoaded', () => {
-    initSpeechRecognition();
-    // Pre-cache introductory audio
+    // Check initial status
     fetch('/api/status').then(r => r.json()).then(st => {
         if (!st.is_active) {
             togglePower();
         }
-    });
+    }).catch(() => {});
+    
+    // Proactively attempt activation
+    setTimeout(activateMicrophone, 800);
 });
