@@ -1,5 +1,5 @@
 """
-JARVIS System Controller - Hardware, OS & Window Control for Windows
+SAMPAN System Controller - Hardware, OS & Window Control for Windows
 Executes voice-activated commands to manage apps, audio, displays, power, and telemetry.
 """
 
@@ -186,7 +186,7 @@ def lock_screen():
 def take_screenshot() -> tuple[bool, str, str]:
     """Captures the primary monitor and saves to screenshots folder."""
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filepath = SCREENSHOTS_DIR / f"jarvis_screenshot_{timestamp}.png"
+    filepath = SCREENSHOTS_DIR / f"sampan_screenshot_{timestamp}.png"
     
     # Try PIL / pyautogui
     try:
@@ -274,10 +274,10 @@ def get_system_telemetry() -> dict:
     }
 
 def get_system_report() -> str:
-    """Creates a natural-sounding Jarvis status briefing."""
+    """Creates a natural-sounding SAMPAN status briefing."""
     data = get_system_telemetry()
     status_brief = (
-        f"All systems are operational, sir. "
+        f"All systems are operational, my friend. "
         f"CPU load is currently at {data['cpu_percent']} percent, "
         f"Memory utilization is at {data['ram_percent']} percent ({data['ram_used_gb']} of {data['ram_total_gb']} gigabytes). "
     )

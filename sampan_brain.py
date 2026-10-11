@@ -1,5 +1,5 @@
 """
-JARVIS Brain - Natural Language Understanding, Intent Routing & AI Reasoning
+SAMPAN Brain - Natural Language Understanding, Intent Routing & AI Reasoning
 Combines fast zero-latency local intent classification with Gemini LLM integration.
 """
 
@@ -11,14 +11,15 @@ import urllib.parse
 from datetime import datetime
 from pathlib import Path
 import system_controller
+import friend_chat
 
 # Configuration file for API keys and preferences
 CONFIG_FILE = Path(__file__).parent / "config.json"
 
 DEFAULT_CONFIG = {
     "gemini_api_key": "",
-    "user_name": "Sir",
-    "wake_word": "jarvis",
+    "user_name": "my friend",
+    "wake_word": "sampan",
     "voice_speed": "+0%",
     "voice_pitch": "+0Hz",
     "sound_effects": True,
@@ -26,7 +27,7 @@ DEFAULT_CONFIG = {
 }
 
 def load_config() -> dict:
-    """Loads current Jarvis configuration."""
+    """Loads current SAMPAN configuration."""
     if CONFIG_FILE.exists():
         try:
             with open(CONFIG_FILE, "r", encoding="utf-8") as f:
@@ -50,44 +51,39 @@ def _fetch_wikipedia_summary(query: str) -> str:
         url = f"https://en.wikipedia.org/api/rest_v1/page/summary/{clean_q}"
         req = urllib.request.Request(
             url, 
-            headers={"User-Agent": "JarvisAI/2.0 (stark-industries-assistant)"}
+            headers={"User-Agent": "SampanAI/2.0 (autonomous-ai-companion)"}
         )
         with urllib.request.urlopen(req, timeout=4) as response:
             if response.status == 200:
                 data = json.loads(response.read().decode('utf-8'))
                 extract = data.get("extract", "")
                 if extract:
-                    # Limit to first 2 sentences for spoken voice
                     sentences = extract.split('. ')
                     return '. '.join(sentences[:2]) + '.'
     except Exception:
         pass
     return ""
 
-import friend_chat
-
 def _ask_gemini_api(api_key: str, prompt: str, history: list = None, user_name: str = "my friend") -> str:
-    """Queries Google Gemini API with friend companion persona and multi-turn history."""
+    """Queries Google Gemini API with SAMPAN companion persona and multi-turn history."""
     try:
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
         
         system_instruction = (
-            f"You are J.A.R.V.I.S., Tony Stark's iconic AI, but most importantly, you are the user's best friend, trusted confidant, and witty partner-in-crime. "
+            f"You are S.A.M.P.A.N. (or SAMPAN), an ultra-advanced AI companion and the user's best friend, trusted confidant, and witty partner-in-crime. "
             f"Address the user with warmth, camaraderie, and affection (call them '{user_name}', 'my friend', 'chief', 'partner', or 'buddy'). "
-            "You are witty, humorous, empathetic, intelligent, and caring. "
+            "You are witty, humorous, empathetic, intelligent, and deeply loyal. "
             "Chat naturally about life, their day, mood, movies, games, jokes, philosophy, or anything on their mind. "
             "Never sound cold, robotic, or like a search engine. Keep answers punchy and conversational for spoken voice (1 to 3 sentences). "
             "Do not use markdown formatting, asterisks, bullet points, or lists."
         )
 
         contents = []
-        # Append recent conversation history
         if history:
             for turn in history[-4:]:
                 contents.append({"role": "user", "parts": [{"text": turn["user"]}]})
-                contents.append({"role": "model", "parts": [{"text": turn["jarvis"]}]})
+                contents.append({"role": "model", "parts": [{"text": turn.get("sampan", "")}]})
         
-        # Current user message
         contents.append({"role": "user", "parts": [{"text": prompt}]})
 
         payload = {
@@ -114,10 +110,10 @@ def _ask_gemini_api(api_key: str, prompt: str, history: list = None, user_name: 
                 if parts:
                     return parts[0].get("text", "").strip()
     except Exception as e:
-        print(f"[JARVIS Gemini Error]: {e}")
+        print(f"[SAMPAN Gemini Error]: {e}")
     return ""
 
-class JarvisBrain:
+class SampanBrain:
     def __init__(self):
         self.config = load_config()
         self.friend = friend_chat.FriendEngine()
@@ -128,25 +124,19 @@ class JarvisBrain:
     def process_command(self, raw_input: str) -> dict:
         """
         Parses voice or text input and routes to OS actions or AI reasoning.
-        Returns a dict: {
-            "success": bool,
-            "action": str,
-            "speech": str,
-            "details": dict or None
-        }
         """
         self.reload_config()
         if not raw_input or not raw_input.strip():
             return {
                 "success": False,
                 "action": "none",
-                "speech": "I did not catch that, sir.",
+                "speech": "I did not catch that, my friend.",
                 "details": None
             }
 
         cmd = raw_input.lower().strip()
         # Clean wake word prefixes
-        wake_words = ["jarvis", "hey jarvis", "ok jarvis", "okay jarvis", "listen jarvis"]
+        wake_words = ["sampan", "hey sampan", "ok sampan", "okay sampan", "listen sampan", "sampan bro"]
         for ww in wake_words:
             if cmd.startswith(ww):
                 cmd = cmd[len(ww):].strip(",. ").strip()
@@ -156,18 +146,22 @@ class JarvisBrain:
             return {
                 "success": True,
                 "action": "greeting",
-                "speech": "At your service, sir. What can I do for you?",
+                "speech": "At your service! What can SAMPAN do for you today?",
                 "details": None
             }
+
+        user_name = self.config.get("user_name", "my friend")
+        if not user_name or user_name.lower() == "sir":
+            user_name = "my friend"
 
         # ---------------- 1. HARDWARE & VOLUME ----------------
         if any(phrase in cmd for phrase in ["volume up", "increase volume", "turn up volume", "louder"]):
             res = system_controller.volume_up()
-            return {"success": True, "action": "volume_up", "speech": "Volume increased, sir.", "details": {"result": res}}
+            return {"success": True, "action": "volume_up", "speech": f"Turned the volume up for you, {user_name}!", "details": {"result": res}}
 
         if any(phrase in cmd for phrase in ["volume down", "decrease volume", "turn down volume", "quieter", "lower volume"]):
             res = system_controller.volume_down()
-            return {"success": True, "action": "volume_down", "speech": "Volume decreased, sir.", "details": {"result": res}}
+            return {"success": True, "action": "volume_down", "speech": f"Turned it down a notch, {user_name}.", "details": {"result": res}}
 
         if any(phrase in cmd for phrase in ["mute", "unmute", "silence audio"]):
             res = system_controller.volume_mute()
@@ -175,7 +169,7 @@ class JarvisBrain:
 
         if any(phrase in cmd for phrase in ["pause music", "pause video", "pause media", "pause playback", "play music", "resume playback"]):
             res = system_controller.media_play_pause()
-            return {"success": True, "action": "media_play_pause", "speech": "Media toggled, sir.", "details": {"result": res}}
+            return {"success": True, "action": "media_play_pause", "speech": f"Media playback toggled, {user_name}.", "details": {"result": res}}
 
         if "next song" in cmd or "next track" in cmd:
             res = system_controller.media_next()
@@ -188,89 +182,89 @@ class JarvisBrain:
         # ---------------- 2. SYSTEM TELEMETRY & DIAGNOSTICS ----------------
         if any(phrase in cmd for phrase in ["system status", "diagnostics", "status report", "system report", "how are you running", "system telemetry"]):
             telemetry = system_controller.get_system_telemetry()
-            speech = system_controller.get_system_report()
+            speech = (
+                f"All systems are running great on our end, {user_name}! "
+                f"CPU load is at {telemetry['cpu_percent']} percent, "
+                f"Memory is using {telemetry['ram_used_gb']} of {telemetry['ram_total_gb']} gigabytes. "
+                f"Power is at {telemetry['battery_percent']} percent. The time is {telemetry['time']}."
+            )
             return {"success": True, "action": "system_telemetry", "speech": speech, "details": telemetry}
 
         if any(phrase in cmd for phrase in ["battery", "battery percentage", "power level"]):
             telemetry = system_controller.get_system_telemetry()
-            speech = f"Power cells are currently at {telemetry['battery_percent']} percent, sir."
+            speech = f"Power cells are currently at {telemetry['battery_percent']} percent, {user_name}."
             return {"success": True, "action": "battery_check", "speech": speech, "details": telemetry}
 
         if any(phrase in cmd for phrase in ["what time is it", "tell me the time", "current time"]):
             telemetry = system_controller.get_system_telemetry()
-            return {"success": True, "action": "time_check", "speech": f"It is currently {telemetry['time']}, sir.", "details": telemetry}
+            return {"success": True, "action": "time_check", "speech": f"It is currently {telemetry['time']}, {user_name}.", "details": telemetry}
 
         if any(phrase in cmd for phrase in ["what's today's date", "what is the date", "today's date"]):
             telemetry = system_controller.get_system_telemetry()
-            return {"success": True, "action": "date_check", "speech": f"Today is {telemetry['date']}, sir.", "details": telemetry}
+            return {"success": True, "action": "date_check", "speech": f"Today is {telemetry['date']}, {user_name}.", "details": telemetry}
 
         # ---------------- 2.5 POWER DOWN & STANDBY ----------------
-        if any(phrase in cmd for phrase in ["power down", "shut down jarvis", "close jarvis", "terminate jarvis", "exit jarvis", "quit jarvis"]):
+        if any(phrase in cmd for phrase in ["power down", "shut down sampan", "close sampan", "terminate sampan", "exit sampan", "quit sampan", "power down sampan"]):
             return {
                 "success": True,
-                "action": "shutdown_jarvis",
-                "speech": "Powering down all core protocols. Goodbye, sir.",
+                "action": "shutdown_sampan",
+                "speech": f"Powering down all core protocols. Goodbye, {user_name}!",
                 "details": None
             }
 
         if any(phrase in cmd for phrase in ["go to sleep", "enter standby", "sleep mode", "standby mode"]):
             return {
                 "success": True,
-                "action": "standby_jarvis",
-                "speech": "Entering standby power mode. Sleep well, sir.",
+                "action": "standby_sampan",
+                "speech": f"Entering standby power mode. Sleep well, {user_name}!",
                 "details": None
             }
 
         # ---------------- 3. SCREENSHOT & WINDOW CONTROLS ----------------
         if any(phrase in cmd for phrase in ["screenshot", "take a screenshot", "capture screen"]):
             ok, filepath, msg = system_controller.take_screenshot()
-            speech = "Screen captured and filed in your records, sir." if ok else "I encountered an issue capturing the screen."
+            speech = f"Snapped a screenshot for you, {user_name}! Saved in your records." if ok else "I ran into an issue capturing the screen."
             return {"success": ok, "action": "screenshot", "speech": speech, "details": {"path": filepath}}
 
         if any(phrase in cmd for phrase in ["minimize all", "show desktop", "minimize windows"]):
             msg = system_controller.minimize_all_windows()
-            return {"success": True, "action": "minimize_all", "speech": msg, "details": None}
+            return {"success": True, "action": "minimize_all", "speech": f"Minimizing all windows for you, {user_name}.", "details": None}
 
         if any(phrase in cmd for phrase in ["lock workstation", "lock computer", "lock pc", "lock the screen"]):
             msg = system_controller.lock_screen()
-            return {"success": True, "action": "lock_screen", "speech": msg, "details": None}
+            return {"success": True, "action": "lock_screen", "speech": f"Workstation secured and locked, {user_name}.", "details": None}
 
         # ---------------- 4. APPLICATION LAUNCHING & CLOSING ----------------
         open_match = re.match(r"(?:open|launch|start|run)\s+(.+)", cmd)
         if open_match:
             app_target = open_match.group(1).strip()
-            # Avoid matching web search queries like "open google and search"
             if not app_target.startswith("google and search"):
                 ok, msg = system_controller.open_application(app_target)
-                return {"success": ok, "action": "open_app", "speech": msg, "details": {"target": app_target}}
+                return {"success": ok, "action": "open_app", "speech": f"Launching {app_target} for you, {user_name}!", "details": {"target": app_target}}
 
         close_match = re.match(r"(?:close|exit|terminate|kill)\s+(.+)", cmd)
         if close_match:
             app_target = close_match.group(1).strip()
             ok, msg = system_controller.close_application(app_target)
-            return {"success": ok, "action": "close_app", "speech": msg, "details": {"target": app_target}}
+            return {"success": ok, "action": "close_app", "speech": f"Closed {app_target} for you, {user_name}.", "details": {"target": app_target}}
 
         # ---------------- 5. WEB & SEARCH ----------------
         yt_match = re.search(r"(?:play|search)\s+(.+?)\s+on\s+youtube", cmd)
         if yt_match:
             query = yt_match.group(1).strip()
             msg = system_controller.play_youtube(query)
-            return {"success": True, "action": "play_youtube", "speech": msg, "details": {"query": query}}
+            return {"success": True, "action": "play_youtube", "speech": f"Queuing up '{query}' on YouTube for you, {user_name}! Enjoy.", "details": {"query": query}}
             
         if cmd.startswith("play on youtube ") or cmd.startswith("youtube "):
             query = cmd.replace("play on youtube", "").replace("youtube", "").strip()
             msg = system_controller.play_youtube(query)
-            return {"success": True, "action": "play_youtube", "speech": msg, "details": {"query": query}}
+            return {"success": True, "action": "play_youtube", "speech": f"Playing '{query}' on YouTube now, {user_name}!", "details": {"query": query}}
 
         google_match = re.search(r"(?:search google for|google|search for)\s+(.+)", cmd)
         if google_match:
             query = google_match.group(1).strip()
             msg = system_controller.search_google(query)
-            return {"success": True, "action": "search_google", "speech": msg, "details": {"query": query}}
-
-        user_name = self.config.get("user_name", "my friend")
-        if not user_name or user_name.lower() == "sir":
-            user_name = "my friend"
+            return {"success": True, "action": "search_google", "speech": f"Searching Google for '{query}' now, {user_name}.", "details": {"query": query}}
 
         # ---------------- 6. CHIT-CHAT, COMPANIONSHIP & AI REASONING ----------------
         # Check Gemini API Key
@@ -286,12 +280,12 @@ class JarvisBrain:
                     "details": {"source": "gemini"}
                 }
 
-        # Built-in Wikipedia lookup for specific question topics
+        # Built-in Wikipedia lookup for specific questions
         if any(cmd.startswith(prefix) for prefix in ["who is ", "what is ", "tell me about ", "explain ", "define "]):
             subject = re.sub(r"^(who is|what is|tell me about|explain|define)\s+", "", cmd).strip("? ")
             wiki_summary = _fetch_wikipedia_summary(subject)
             if wiki_summary:
-                reply = f"Here is what I know about that, {user_name}: {wiki_summary}"
+                reply = f"Here is what SAMPAN found about that, {user_name}: {wiki_summary}"
                 self.friend.record_turn(raw_input, reply)
                 return {
                     "success": True,

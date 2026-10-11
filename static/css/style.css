@@ -65,7 +65,7 @@ body {
 }
 
 /* Master Layout Container */
-.jarvis-container {
+.jarvis-container, .sampan-container {
     display: flex;
     flex-direction: column;
     height: 100vh;
@@ -621,7 +621,8 @@ body {
     border-left: 3px solid var(--hud-gold);
 }
 
-.log-entry.jarvis {
+.log-entry.jarvis,
+.log-entry.sampan {
     border-left: 3px solid var(--hud-cyan);
     background: rgba(0, 240, 255, 0.07);
 }
@@ -635,7 +636,8 @@ body {
 }
 
 .log-entry.user .log-author { color: var(--hud-gold); }
-.log-entry.jarvis .log-author { color: var(--hud-cyan); font-weight: 700; }
+.log-entry.jarvis .log-author,
+.log-entry.sampan .log-author { color: var(--hud-cyan); font-weight: 700; }
 .log-time { color: rgba(224, 248, 255, 0.4); }
 
 .quick-commands {

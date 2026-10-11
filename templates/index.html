@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>J.A.R.V.I.S. // STARK INDUSTRIES OS</title>
+    <title>S.A.M.P.A.N. // AUTONOMOUS AI OS</title>
     <link rel="stylesheet" href="/static/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,14 +15,14 @@
     <div class="hud-vignette"></div>
 
     <!-- MAIN INTERFACE CONTAINER -->
-    <div class="jarvis-container">
+    <div class="sampan-container">
         
         <!-- TOP HUD BAR -->
         <header class="top-hud">
             <div class="hud-bracket left"></div>
             <div class="brand-zone">
-                <div class="stark-logo">STARK INDUSTRIES</div>
-                <div class="protocol-name">J.A.R.V.I.S. // MARK VII INTERFACE</div>
+                <div class="stark-logo">S.A.M.P.A.N.</div>
+                <div class="protocol-name">MARK VII // COMPANION INTERFACE</div>
             </div>
 
             <div class="status-center">
@@ -113,14 +113,14 @@
                 <div class="voice-guide">
                     <div class="guide-title">VOICE PROTOCOLS</div>
                     <ul class="guide-list">
-                        <li>"Jarvis, how are you doing buddy?"</li>
-                        <li>"Jarvis, tell me a joke / fun fact"</li>
-                        <li>"Jarvis, are you my friend?"</li>
-                        <li>"Jarvis, open [Chrome / Spotify / App]"</li>
-                        <li>"Jarvis, volume up / down / mute"</li>
-                        <li>"Jarvis, play [song] on YouTube"</li>
-                        <li>"Jarvis, take a screenshot"</li>
-                        <li>"Jarvis, status report"</li>
+                        <li>"Sampan, how are you doing buddy?"</li>
+                        <li>"Sampan, tell me a joke / fun fact"</li>
+                        <li>"Sampan, are you my friend?"</li>
+                        <li>"Sampan, open [Chrome / Spotify / App]"</li>
+                        <li>"Sampan, volume up / down / mute"</li>
+                        <li>"Sampan, play [song] on YouTube"</li>
+                        <li>"Sampan, take a screenshot"</li>
+                        <li>"Sampan, status report"</li>
                     </ul>
                 </div>
             </aside>
@@ -133,7 +133,7 @@
                     <canvas id="visualizerCanvas" width="500" height="500"></canvas>
 
                     <!-- Animated Holographic Arc Reactor -->
-                    <div class="arc-reactor" id="arcReactor" title="Click to Toggle JARVIS Power (Online / Standby)">
+                    <div class="arc-reactor" id="arcReactor" title="Click to Toggle SAMPAN Power (Online / Standby)">
                         <div class="ring outer-ring"></div>
                         <div class="ring dashed-ring"></div>
                         <div class="ring inner-ring"></div>
@@ -149,14 +149,14 @@
                     </div>
 
                     <div class="core-label" id="coreLabel">ARC REACTOR: ACTIVE</div>
-                    <div class="core-subtext" id="coreSubtext">Continuous Voice Detection Engaged</div>
+                    <div class="core-subtext" id="coreSubtext">SAMPAN Voice Detection Engaged</div>
                 </div>
 
                 <!-- Live Voice Speech Waveform & State -->
                 <div class="speech-hud-box">
                     <div class="speech-status-indicator" id="voiceStatusIndicator">
                         <span class="indicator-pulse"></span>
-                        <span id="voiceStatusText">Listening for "Jarvis"...</span>
+                        <span id="voiceStatusText">Listening for "Sampan"...</span>
                     </div>
 
                     <!-- Spoken Transcript Banner -->
@@ -175,23 +175,23 @@
                 </div>
 
                 <div class="log-stream" id="logStream">
-                    <div class="log-entry jarvis">
+                    <div class="log-entry sampan">
                         <div class="log-meta">
-                            <span class="log-author">J.A.R.V.I.S.</span>
+                            <span class="log-author">S.A.M.P.A.N.</span>
                             <span class="log-time">STARTUP</span>
                         </div>
-                        <div class="log-text">Good evening, sir. Mark VII online. I am listening for your voice commands.</div>
+                        <div class="log-text">Good evening, my friend. SAMPAN Mark VII online. I am listening for your voice commands.</div>
                     </div>
                 </div>
 
                 <!-- Quick Action Bar -->
                 <div class="quick-commands">
-                    <button class="hud-pill" onclick="triggerPreset('Jarvis, how are you doing buddy?')">💬 Chat</button>
-                    <button class="hud-pill" onclick="triggerPreset('Jarvis, tell me a joke')">😄 Joke</button>
-                    <button class="hud-pill" onclick="triggerPreset('Jarvis, tell me a fun fact')">💡 Fact</button>
-                    <button class="hud-pill" onclick="triggerPreset('Jarvis, status report')">Status</button>
-                    <button class="hud-pill" onclick="triggerPreset('Jarvis, take a screenshot')">Screenshot</button>
-                    <button class="hud-pill" onclick="triggerPreset('Jarvis, volume up')">Vol +</button>
+                    <button class="hud-pill" onclick="triggerPreset('Sampan, how are you doing buddy?')">💬 Chat</button>
+                    <button class="hud-pill" onclick="triggerPreset('Sampan, tell me a joke')">😄 Joke</button>
+                    <button class="hud-pill" onclick="triggerPreset('Sampan, tell me a fun fact')">💡 Fact</button>
+                    <button class="hud-pill" onclick="triggerPreset('Sampan, status report')">Status</button>
+                    <button class="hud-pill" onclick="triggerPreset('Sampan, take a screenshot')">Screenshot</button>
+                    <button class="hud-pill" onclick="triggerPreset('Sampan, volume up')">Vol +</button>
                 </div>
 
                 <!-- Text command backup input -->
@@ -224,26 +224,26 @@
     <div class="modal-backdrop" id="settingsModal">
         <div class="modal-box">
             <div class="modal-header">
-                <h2>STARK SYSTEM CONFIGURATION</h2>
+                <h2>SAMPAN SYSTEM CONFIGURATION</h2>
                 <button class="close-modal-btn" id="closeSettingsBtn">✕</button>
             </div>
             <div class="modal-content">
                 <div class="form-group">
                     <label>Gemini AI API Key (Optional for Deep Intelligence):</label>
                     <input type="password" id="geminiApiKeyInput" placeholder="AIzaSy...">
-                    <small>Leave empty to use built-in offline Jarvis assistant mode.</small>
+                    <small>Leave empty to use built-in offline SAMPAN companion mode.</small>
                 </div>
                 <div class="form-group">
                     <label>Voice Synthesis Rate:</label>
                     <select id="voiceRateSelect">
                         <option value="-10%">Slow</option>
-                        <option value="+0%" selected>Standard (Default Jarvis)</option>
+                        <option value="+0%" selected>Standard</option>
                         <option value="+10%">Fast</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label>Callsign / Name:</label>
-                    <input type="text" id="userNameInput" value="Sir">
+                    <input type="text" id="userNameInput" value="my friend">
                 </div>
                 <div class="form-actions">
                     <button class="save-settings-btn" id="saveSettingsBtn">SAVE PROTOCOLS</button>
@@ -252,6 +252,6 @@
         </div>
     </div>
 
-    <script src="/static/js/jarvis.js"></script>
+    <script src="/static/js/sampan.js"></script>
 </body>
 </html>

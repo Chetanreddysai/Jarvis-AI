@@ -1,6 +1,6 @@
 """
-JARVIS Desktop Application Launcher
-Starts the JARVIS server and launches the holographic interface in borderless App mode.
+SAMPAN Desktop Application Launcher
+Starts the SAMPAN server and launches the holographic interface in borderless App mode.
 """
 
 import os
@@ -24,10 +24,10 @@ def start_server():
 
 def launch_app_window(url="http://127.0.0.1:5000"):
     """
-    Attempts to launch in dedicated standalone App Mode via Edge or Chrome,
+    Launches in dedicated standalone App Mode via Edge or Chrome,
     giving a 100% native desktop app experience without browser address bars.
     """
-    time.sleep(1.2)  # Give server a moment to bind
+    time.sleep(1.2)
 
     profile_dir = PROJECT_ROOT / "browser_profile"
     profile_dir.mkdir(parents=True, exist_ok=True)
@@ -50,10 +50,10 @@ def launch_app_window(url="http://127.0.0.1:5000"):
     for p in edge_paths:
         if p and os.path.exists(p):
             cmd = f'"{p}" {flags}'
-            print(f"[JARVIS Launch] Opening dedicated App Window via Edge: {cmd}")
+            print(f"[SAMPAN Launch] Opening dedicated App Window via Edge: {cmd}")
             proc = subprocess.Popen(cmd, shell=True)
             proc.wait()
-            print("[JARVIS] App window closed. Shutting down all processes...")
+            print("[SAMPAN] App window closed. Shutting down all processes...")
             os._exit(0)
 
     # 2. Check Google Chrome
@@ -65,20 +65,20 @@ def launch_app_window(url="http://127.0.0.1:5000"):
     for p in chrome_paths:
         if p and os.path.exists(p):
             cmd = f'"{p}" {flags}'
-            print(f"[JARVIS Launch] Opening dedicated App Window via Chrome: {cmd}")
+            print(f"[SAMPAN Launch] Opening dedicated App Window via Chrome: {cmd}")
             proc = subprocess.Popen(cmd, shell=True)
             proc.wait()
-            print("[JARVIS] App window closed. Shutting down all processes...")
+            print("[SAMPAN] App window closed. Shutting down all processes...")
             os._exit(0)
 
     # 3. Fallback to default browser
-    print("[JARVIS Launch] Opening in default web browser...")
+    print("[SAMPAN Launch] Opening in default web browser...")
     subprocess.Popen(f'start {url}', shell=True)
 
 if __name__ == "__main__":
     print("=" * 60)
-    print("   J.A.R.V.I.S. // STARK INDUSTRIES MARK VII ACTIVATION")
-    print("   Voice-Controlled Autonomous System Interface")
+    print("   S.A.M.P.A.N. // AUTONOMOUS AI SYSTEM ACTIVATION")
+    print("   Voice-Controlled Companion & System Interface")
     print("=" * 60)
     print("Initializing Core Protocols on http://127.0.0.1:5000 ...")
 
@@ -89,11 +89,11 @@ if __name__ == "__main__":
     # Launch desktop window
     launch_app_window()
 
-    print("\n[JARVIS STATUS]: ONLINE AND LISTENING.")
-    print("Press Ctrl+C in this terminal to power down JARVIS.\n")
+    print("\n[SAMPAN STATUS]: ONLINE AND LISTENING.")
+    print("Press Ctrl+C in this terminal to power down SAMPAN.\n")
 
     try:
         while True:
             time.sleep(1)
     except KeyboardInterrupt:
-        print("\n[JARVIS]: Powering down. Goodbye, sir.")
+        print("\n[SAMPAN]: Powering down. Goodbye!")

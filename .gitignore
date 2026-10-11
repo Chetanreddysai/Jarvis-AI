@@ -6,7 +6,7 @@ __pycache__/
 venv/
 ENV/
 
-# Jarvis Runtime & Cache
+# SAMPAN Runtime & Cache
 browser_profile/
 static/audio_cache/
 screenshots/

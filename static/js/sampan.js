@@ -1,5 +1,5 @@
 /* ========================================================
-   J.A.R.V.I.S. // STARK INDUSTRIES SYSTEM CLIENT JAVASCRIPT
+   S.A.M.P.A.N. // AI COMPANION & OS CONTROLLER JAVASCRIPT
    Handles Speech Recognition, Web Audio Visualizer, 
    OS Telemetry Polling, Arc Reactor Animations & Power State.
    ======================================================== */
@@ -37,6 +37,7 @@ const settingsModal = document.getElementById('settingsModal');
 const closeSettingsBtn = document.getElementById('closeSettingsBtn');
 const saveSettingsBtn = document.getElementById('saveSettingsBtn');
 const commandForm = document.getElementById('commandForm');
+const commandInput = document.getElementById('commandInput');
 const clearLogsBtn = document.getElementById('clearLogsBtn');
 const micBanner = document.getElementById('micBanner');
 const micBannerText = document.getElementById('micBannerText');
@@ -194,7 +195,7 @@ drawVisualizer();
 
 // ================= 4. AUDIO PLAYBACK WITH LIP-SYNC =================
 
-function playJarvisSpeech(audioUrl) {
+function playSampanSpeech(audioUrl) {
     if (!audioUrl) return;
     initAudioContext();
 
@@ -214,7 +215,7 @@ function playJarvisSpeech(audioUrl) {
     currentAudio.onended = () => {
         isSpeaking = false;
         document.body.classList.remove('speaking');
-        voiceStatusText.textContent = isSystemActive ? "Listening for 'Jarvis'..." : "Standby Mode";
+        voiceStatusText.textContent = isSystemActive ? "Listening for 'Sampan'..." : "Standby Mode";
     };
 
     currentAudio.onerror = (e) => {
@@ -298,7 +299,7 @@ function initSpeechRecognition() {
 
     recognition.onstart = () => {
         if (isSystemActive && isMicActive) {
-            voiceStatusText.textContent = "Listening for 'Jarvis'...";
+            voiceStatusText.textContent = "Listening for 'Sampan'...";
             micBanner.classList.add('granted');
             micBannerText.textContent = "MICROPHONE ONLINE // LISTENING";
         }
@@ -375,9 +376,9 @@ function animateMicBars() {
 async function handleRecognizedCommand(text) {
     if (!isSystemActive) return;
 
-    // Filter out accidental background noise if it doesn't mention jarvis
+    // Filter out accidental background noise if it doesn't mention sampan or obvious commands
     const lower = text.toLowerCase();
-    const hasWakeWord = lower.includes("jarvis") || lower.startsWith("hey") || lower.startsWith("ok") || lower.startsWith("open") || lower.startsWith("play") || lower.startsWith("volume") || lower.startsWith("status");
+    const hasWakeWord = lower.includes("sampan") || lower.startsWith("hey") || lower.startsWith("ok") || lower.startsWith("open") || lower.startsWith("play") || lower.startsWith("volume") || lower.startsWith("status");
 
     if (!hasWakeWord && text.split(" ").length < 2) {
         return; // Ignore random one-word background sounds
@@ -395,15 +396,15 @@ async function handleRecognizedCommand(text) {
 
         const data = await res.json();
         if (data.speech) {
-            addLogEntry('jarvis', data.speech, data.action);
-            transcriptDisplay.textContent = `JARVIS: "${data.speech}"`;
+            addLogEntry('sampan', data.speech, data.action);
+            transcriptDisplay.textContent = `SAMPAN: "${data.speech}"`;
             if (data.audio_url) {
-                playJarvisSpeech(data.audio_url);
+                playSampanSpeech(data.audio_url);
             }
         }
     } catch (err) {
         console.error("Command execution error:", err);
-        addLogEntry('jarvis', "Communication uplink disrupted, sir.");
+        addLogEntry('sampan', "Communication uplink disrupted, my friend.");
     }
 }
 
@@ -416,7 +417,7 @@ function addLogEntry(author, text, action = null) {
 
     entry.innerHTML = `
         <div class="log-meta">
-            <span class="log-author">${author === 'user' ? 'STARK' : 'J.A.R.V.I.S.'} ${actionBadge}</span>
+            <span class="log-author">${author === 'user' ? 'YOU' : 'S.A.M.P.A.N.'} ${actionBadge}</span>
             <span class="log-time">${now}</span>
         </div>
         <div class="log-text">${text}</div>
@@ -446,7 +447,7 @@ async function togglePower() {
         });
         const data = await res.json();
         if (data.audio_url && isSystemActive) {
-            playJarvisSpeech(data.audio_url);
+            playSampanSpeech(data.audio_url);
         }
     } catch (e) {}
 
@@ -454,10 +455,10 @@ async function togglePower() {
         document.body.classList.remove('standby');
         systemStateText.textContent = "ONLINE // LISTENING";
         coreLabel.textContent = "ARC REACTOR: ACTIVE";
-        coreSubtext.textContent = "Continuous Voice Detection Engaged";
+        coreSubtext.textContent = "SAMPAN Voice Detection Engaged";
         togglePowerBtn.textContent = "POWER: ONLINE";
         togglePowerBtn.style.borderColor = "var(--hud-cyan)";
-        voiceStatusText.textContent = "Listening for 'Jarvis'...";
+        voiceStatusText.textContent = "Listening for 'Sampan'...";
         transcriptDisplay.textContent = "Standing by for voice instruction...";
         if (recognition) {
             try { recognition.start(); } catch (e) {}
@@ -470,7 +471,7 @@ async function togglePower() {
         togglePowerBtn.textContent = "POWER: STANDBY";
         togglePowerBtn.style.borderColor = "var(--hud-gold)";
         voiceStatusText.textContent = "Standby Mode Active";
-        transcriptDisplay.textContent = "JARVIS is sleeping. Click Arc Reactor to engage.";
+        transcriptDisplay.textContent = "SAMPAN is sleeping. Click Arc Reactor to engage.";
         if (recognition) {
             try { recognition.stop(); } catch (e) {}
         }
@@ -519,7 +520,7 @@ settingsBtn.addEventListener('click', async () => {
         const data = await res.json();
         if (data.settings) {
             document.getElementById('geminiApiKeyInput').value = data.settings.gemini_api_key || '';
-            document.getElementById('userNameInput').value = data.settings.user_name || 'Sir';
+            document.getElementById('userNameInput').value = data.settings.user_name || 'my friend';
             document.getElementById('voiceRateSelect').value = data.settings.voice_speed || '+0%';
         }
     } catch(e) {}
@@ -544,7 +545,7 @@ saveSettingsBtn.addEventListener('click', async () => {
             body: JSON.stringify(payload)
         });
         settingsModal.classList.remove('open');
-        addLogEntry('jarvis', "System settings and protocols updated, sir.");
+        addLogEntry('sampan', "System settings and protocols updated, my friend.");
     } catch(e) {
         alert("Failed to save settings.");
     }

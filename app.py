@@ -1,5 +1,5 @@
 """
-JARVIS Central Web Server & Application Host
+SAMPAN Central Web Server & Application Host
 Powers the Iron Man HUD, handles real-time voice command processing,
 audio synthesis streaming, and telemetry updates.
 """
@@ -12,7 +12,7 @@ from flask_cors import CORS
 
 import system_controller
 import voice_engine
-import jarvis_brain
+import sampan_brain
 import time
 import threading
 import speech_recognition as sr
@@ -20,13 +20,13 @@ import speech_recognition as sr
 app = Flask(__name__, static_folder="static", template_folder="templates")
 CORS(app)
 
-brain = jarvis_brain.JarvisBrain()
+brain = sampan_brain.SampanBrain()
 
 # System state: ONLINE (True) vs STANDBY (False)
 APP_STATE = {
     "is_active": True,
     "last_command": "",
-    "last_response": "Standing by, sir.",
+    "last_response": "Standing by, my friend.",
     "is_speaking": False
 }
 
@@ -54,10 +54,10 @@ def start_native_microphone_worker():
             r.pause_threshold = 0.7
             mic = sr.Microphone()
         except Exception as e:
-            print(f"[JARVIS Native Mic Notice]: {e}")
+            print(f"[SAMPAN Native Mic Notice]: {e}")
             return
 
-        print("[JARVIS Background Mic]: Hardware listener active and ready.")
+        print("[SAMPAN Background Mic]: Hardware listener active and ready.")
         with mic as source:
             try:
                 r.adjust_for_ambient_noise(source, duration=0.6)
@@ -72,8 +72,8 @@ def start_native_microphone_worker():
                     raw_text = r.recognize_google(audio).strip()
                     if raw_text and not is_duplicate_command(raw_text):
                         lower = raw_text.lower()
-                        print(f"[JARVIS Hardware Audio]: '{raw_text}'")
-                        trigger_words = ["jarvis", "open", "volume", "play", "screenshot", "status", "mute", "close", "minimize", "power", "exit", "shutdown", "time", "date"]
+                        print(f"[SAMPAN Hardware Audio]: '{raw_text}'")
+                        trigger_words = ["sampan", "open", "volume", "play", "screenshot", "status", "mute", "close", "minimize", "power", "exit", "shutdown", "time", "date"]
                         if any(w in lower for w in trigger_words):
                             APP_STATE["last_command"] = raw_text
                             result = brain.process_command(raw_text)
@@ -116,7 +116,7 @@ def toggle_state():
         APP_STATE["is_active"] = not APP_STATE["is_active"]
         
     state_str = "ONLINE" if APP_STATE["is_active"] else "STANDBY"
-    msg = "All systems energized. Online and listening, sir." if APP_STATE["is_active"] else "Entering standby power mode. Systems asleep."
+    msg = "All systems energized. SAMPAN is online and listening, my friend." if APP_STATE["is_active"] else "Entering standby power mode. Systems asleep."
     
     # Generate voice greeting
     audio_path = voice_engine.synthesize_speech(msg)
@@ -141,7 +141,7 @@ def execute_command():
         return jsonify({
             "success": False,
             "action": "standby_ignored",
-            "speech": "JARVIS is currently in standby mode. Please power on the Arc Reactor.",
+            "speech": "SAMPAN is currently in standby mode. Please power on the Arc Reactor.",
             "audio_url": ""
         }), 400
 
@@ -161,12 +161,12 @@ def execute_command():
 
     APP_STATE["last_command"] = command_text
     
-    # Process through Jarvis Brain
+    # Process through SAMPAN Brain
     result = brain.process_command(command_text)
-    speech_text = result.get("speech", "Command executed, sir.")
+    speech_text = result.get("speech", "Command executed, my friend.")
     APP_STATE["last_response"] = speech_text
     
-    # Synthesize British Jarvis Voice
+    # Synthesize Voice
     audio_file = voice_engine.synthesize_speech(speech_text)
     audio_url = ""
     if audio_file:
@@ -174,13 +174,13 @@ def execute_command():
 
     # Handle Shutdown or Standby Actions
     action = result.get("action", "unknown")
-    if action == "shutdown_jarvis":
+    if action == "shutdown_sampan":
         def kill_process():
             time.sleep(3.5)
             os._exit(0)
         threading.Thread(target=kill_process, daemon=True).start()
 
-    elif action == "standby_jarvis":
+    elif action == "standby_sampan":
         APP_STATE["is_active"] = False
 
     return jsonify({
@@ -210,10 +210,10 @@ def get_audio():
 def handle_settings():
     if request.method == "POST":
         payload = request.get_json(silent=True) or {}
-        updated = jarvis_brain.save_config(payload)
+        updated = sampan_brain.save_config(payload)
         brain.reload_config()
         return jsonify({"success": True, "settings": updated})
-    return jsonify({"success": True, "settings": jarvis_brain.load_config()})
+    return jsonify({"success": True, "settings": sampan_brain.load_config()})
 
 @app.route("/screenshots/<path:filename>")
 def get_screenshot(filename):
@@ -225,5 +225,5 @@ def get_screenshot(filename):
 
 if __name__ == "__main__":
     port = 5000
-    print(f"[JARVIS Server] Initializing on http://localhost:{port}")
+    print(f"[SAMPAN Server] Initializing on http://localhost:{port}")
     app.run(host="127.0.0.1", port=port, debug=False)
