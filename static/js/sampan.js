@@ -345,11 +345,13 @@ function initSpeechRecognition() {
     };
 
     recognition.onend = () => {
-        // Automatically restart listening if still online
+        // Automatically restart listening if still online with brief pause to avoid state collision
         if (isSystemActive && isMicActive) {
-            try {
-                recognition.start();
-            } catch (e) {}
+            setTimeout(() => {
+                try {
+                    if (isSystemActive && isMicActive) recognition.start();
+                } catch (e) {}
+            }, 300);
         }
     };
 
@@ -575,3 +577,27 @@ window.addEventListener('DOMContentLoaded', () => {
     // Proactively attempt activation
     setTimeout(activateMicrophone, 800);
 });
+
+// ================= 9. BACKGROUND HARDWARE SYNC =================
+let lastSeenResponseTimestamp = 0;
+
+async function syncWithBackend() {
+    try {
+        const res = await fetch('/api/status');
+        if (res.ok) {
+            const data = await res.json();
+            if (data.last_response && data.last_timestamp && data.last_timestamp > lastSeenResponseTimestamp) {
+                lastSeenResponseTimestamp = data.last_timestamp;
+                const expectedText = `SAMPAN: "${data.last_response}"`;
+                if (transcriptDisplay.textContent !== expectedText) {
+                    transcriptDisplay.textContent = expectedText;
+                    if (data.last_command) {
+                        addLogEntry('user', data.last_command);
+                    }
+                    addLogEntry('sampan', data.last_response, data.last_action);
+                }
+            }
+        }
+    } catch(e) {}
+}
+setInterval(syncWithBackend, 1200);

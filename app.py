@@ -27,6 +27,8 @@ APP_STATE = {
     "is_active": True,
     "last_command": "",
     "last_response": "Standing by, my friend.",
+    "last_action": "",
+    "last_timestamp": 0.0,
     "is_speaking": False
 }
 
@@ -79,6 +81,8 @@ def start_native_microphone_worker():
                             result = brain.process_command(raw_text)
                             speech = result.get("speech", "")
                             APP_STATE["last_response"] = speech
+                            APP_STATE["last_action"] = result.get("action", "")
+                            APP_STATE["last_timestamp"] = time.time()
                             voice_engine.synthesize_speech(speech)
                             voice_engine.speak_direct(speech)
                 except sr.WaitTimeoutError:
@@ -103,6 +107,8 @@ def get_status():
         "is_active": APP_STATE["is_active"],
         "last_command": APP_STATE["last_command"],
         "last_response": APP_STATE["last_response"],
+        "last_action": APP_STATE.get("last_action", ""),
+        "last_timestamp": APP_STATE.get("last_timestamp", 0.0),
         "is_speaking": APP_STATE["is_speaking"]
     })
 
@@ -165,6 +171,8 @@ def execute_command():
     result = brain.process_command(command_text)
     speech_text = result.get("speech", "Command executed, my friend.")
     APP_STATE["last_response"] = speech_text
+    APP_STATE["last_action"] = result.get("action", "")
+    APP_STATE["last_timestamp"] = time.time()
     
     # Synthesize Voice
     audio_file = voice_engine.synthesize_speech(speech_text)
