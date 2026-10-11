@@ -30,16 +30,19 @@ Inspired directly by the Marvel Iron Man movies, this is a real-time, voice-acti
 
 ---
 
-## 🚀 How to Launch JARVIS
+## 🚀 How to Control JARVIS
 
-### Method 1: One-Click Desktop Launch (Recommended)
+### 1. Starting JARVIS:
 Simply double-click:
-```
-run_jarvis.bat
-```
-*(Located in `C:\Users\annar\.gemini\antigravity\scratch\jarvis-ai\run_jarvis.bat`)*
+👉 **`START_JARVIS.bat`** *(or the **START JARVIS** shortcut on your Desktop)*
 
-This launches JARVIS in a borderless, dedicated Stark HUD application window.
+This launches JARVIS in its dedicated borderless Stark HUD application window and energizes the voice engine.
+
+### 2. Stopping JARVIS:
+Whenever you want to stop JARVIS completely:
+👉 **`STOP_JARVIS.bat`** *(or the **STOP JARVIS** shortcut on your Desktop)*
+
+This immediately terminates all background processes, releases the microphone, and stops listening for any commands.
 
 ### Method 2: Command Line
 ```powershell
