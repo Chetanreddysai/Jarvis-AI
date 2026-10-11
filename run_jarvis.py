@@ -51,8 +51,10 @@ def launch_app_window(url="http://127.0.0.1:5000"):
         if p and os.path.exists(p):
             cmd = f'"{p}" {flags}'
             print(f"[JARVIS Launch] Opening dedicated App Window via Edge: {cmd}")
-            res = subprocess.Popen(cmd, shell=True)
-            return
+            proc = subprocess.Popen(cmd, shell=True)
+            proc.wait()
+            print("[JARVIS] App window closed. Shutting down all processes...")
+            os._exit(0)
 
     # 2. Check Google Chrome
     chrome_paths = [
@@ -64,8 +66,10 @@ def launch_app_window(url="http://127.0.0.1:5000"):
         if p and os.path.exists(p):
             cmd = f'"{p}" {flags}'
             print(f"[JARVIS Launch] Opening dedicated App Window via Chrome: {cmd}")
-            subprocess.Popen(cmd, shell=True)
-            return
+            proc = subprocess.Popen(cmd, shell=True)
+            proc.wait()
+            print("[JARVIS] App window closed. Shutting down all processes...")
+            os._exit(0)
 
     # 3. Fallback to default browser
     print("[JARVIS Launch] Opening in default web browser...")

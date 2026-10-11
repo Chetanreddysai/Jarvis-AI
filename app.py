@@ -49,8 +49,9 @@ def start_native_microphone_worker():
     def listen_loop():
         try:
             r = sr.Recognizer()
+            r.energy_threshold = 300
             r.dynamic_energy_threshold = True
-            r.pause_threshold = 0.8
+            r.pause_threshold = 0.7
             mic = sr.Microphone()
         except Exception as e:
             print(f"[JARVIS Native Mic Notice]: {e}")
@@ -59,7 +60,7 @@ def start_native_microphone_worker():
         print("[JARVIS Background Mic]: Hardware listener active and ready.")
         with mic as source:
             try:
-                r.adjust_for_ambient_noise(source, duration=1.0)
+                r.adjust_for_ambient_noise(source, duration=0.6)
             except Exception:
                 pass
             while True:
@@ -72,7 +73,8 @@ def start_native_microphone_worker():
                     if raw_text and not is_duplicate_command(raw_text):
                         lower = raw_text.lower()
                         print(f"[JARVIS Hardware Audio]: '{raw_text}'")
-                        if "jarvis" in lower or any(lower.startswith(w) for w in ["open", "volume", "play", "screenshot", "status"]):
+                        trigger_words = ["jarvis", "open", "volume", "play", "screenshot", "status", "mute", "close", "minimize", "power", "exit", "shutdown", "time", "date"]
+                        if any(w in lower for w in trigger_words):
                             APP_STATE["last_command"] = raw_text
                             result = brain.process_command(raw_text)
                             speech = result.get("speech", "")
