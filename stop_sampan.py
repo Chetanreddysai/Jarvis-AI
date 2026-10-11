@@ -1,10 +1,15 @@
 """
 SAMPAN Process Terminator
-Cleanly shuts down all SAMPAN servers, speech recognition listeners, and window instances.
+Cleanly shuts down all SAMPAN background listeners, speech recognition, and servers.
 """
 import os
 import sys
+import time
 import psutil
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).parent.resolve()
+sys.path.insert(0, str(PROJECT_ROOT))
 
 def stop_all():
     print("=" * 60)
@@ -22,14 +27,13 @@ def stop_all():
                 try:
                     p = psutil.Process(conn.pid)
                     p.kill()
-                    print(f"[STOPPED] Freed port 5000 from process (PID: {conn.pid})")
                     stopped += 1
                 except Exception:
                     pass
     except Exception:
         pass
 
-    # 2. Kill python instances running run_sampan, app.py or related scripts
+    # 2. Kill python instances running run_background, run_sampan, app.py
     for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
         try:
             if proc.info['pid'] == current_pid:
@@ -37,20 +41,25 @@ def stop_all():
             name = (proc.info['name'] or '').lower()
             cmdline = ' '.join(proc.info['cmdline'] or []).lower()
             
-            # Kill Python SAMPAN instances
-            if 'python' in name and ('run_sampan' in cmdline or 'app.py' in cmdline or 'run_jarvis' in cmdline):
+            if 'python' in name and any(k in cmdline for k in ['run_background', 'run_sampan', 'app.py', 'run_jarvis']):
                 proc.kill()
                 print(f"[STOPPED] Background SAMPAN process terminated (PID: {proc.info['pid']})")
                 stopped += 1
 
-            # Kill dedicated app window instances
             elif ('msedge' in name or 'chrome' in name) and ('browser_profile' in cmdline or '127.0.0.1:5000' in cmdline):
                 proc.kill()
-                print(f"[STOPPED] SAMPAN Application Window closed (PID: {proc.info['pid']})")
+                print(f"[STOPPED] Window process terminated (PID: {proc.info['pid']})")
                 stopped += 1
 
         except (psutil.NoSuchProcess, psutil.AccessDenied):
             pass
+
+    # Voice confirmation of shutdown
+    try:
+        import voice_engine
+        voice_engine.speak("SAMPAN is powered down. Goodbye, my friend.")
+    except Exception:
+        pass
 
     print()
     print("=" * 60)

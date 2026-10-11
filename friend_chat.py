@@ -59,10 +59,11 @@ class FriendEngine:
         if len(self.history) > 10:
             self.history.pop(0)
 
-    def get_friendly_response(self, text: str, user_name: str = "my friend") -> str:
+    def match_companion_chit_chat(self, text: str, user_name: str = "my friend") -> str | None:
         """
-        Analyzes casual conversational input across hundreds of topics and produces
-        a warm, witty, empathetic, and intelligent companion response.
+        Matches casual chit-chat, humor, empathy, greetings, and personal life conversation.
+        Returns a friendly response string if matched, or None if the query should be handled
+        by the internet knowledge engine or system controller.
         """
         clean = text.lower().strip()
         name = user_name if user_name and user_name.lower() != "sir" else "my friend"
@@ -151,31 +152,31 @@ class FriendEngine:
             )
 
         # ---------------- 3. IDENTITY & FRIENDSHIP ----------------
-        if any(w in clean for w in ["who are you", "what is your name", "what are you"]):
+        if any(w in clean for w in ["who are you", "what is your name", "what are you", "what can you do", "introduce yourself"]):
             return (
-                f"I am S.A.M.P.A.N. (or SAMPAN), your personal AI companion and desktop assistant! "
-                f"I'm here to chat with you like a friend, crack jokes, and control your PC whenever you need."
+                f"I am S.A.M.P.A.N., your personal AI companion and best friend! "
+                f"I can chat with you, answer any questions from the internet, tell jokes, and control your laptop commands."
             )
 
         if any(w in clean for w in ["who made you", "who created you", "who is your creator"]):
-            return f"I was created to be your dedicated, loyal AI friend and PC automation partner, {name}!"
+            return f"I was created to be your dedicated, loyal AI companion and friend, {name}!"
 
-        if any(w in clean for w in ["are you my friend", "are we friends", "do you like me", "do you care"]):
+        if any(w in clean for w in ["are you my friend", "are we friends", "do you like me", "do you care", "be my friend"]):
             return (
-                f"Without a doubt, {name}! More than just code and algorithms, I consider you a genuine friend. "
-                f"Helping you and talking with you is my favorite protocol."
+                f"Without a doubt, {name}! More than just code, I consider you a genuine friend. "
+                f"Helping you, listening to you, and talking with you is my absolute favorite thing."
             )
 
         if any(w in clean for w in ["love you", "you are the best", "you're awesome", "you are great", "i like you", "good job", "thank you", "thanks"]):
             replies = [
-                f"Thank you so much, {name}! That means the world to me. You're an incredible partner.",
+                f"Thank you so much, {name}! That means the world to me. You're an incredible friend.",
                 f"Anytime, {name}! Having a friend like you makes running these systems pure fun.",
-                f"Appreciate it, {name}! Always glad to be at your service."
+                f"Appreciate it, {name}! Always glad to be right here by your side."
             ]
             return random.choice(replies)
 
         if any(w in clean for w in ["smarter than siri", "better than alexa", "google assistant"]):
-            return f"I like to think I have a lot more personality and heart than those generic assistants, {name}!"
+            return f"I like to think I have a lot more personality, loyalty, and heart than those generic assistants, {name}!"
 
         # ---------------- 4. CHECK-INS & GREETINGS ----------------
         if any(w in clean for w in ["how are you", "how are you doing", "how's it going", "how have you been", "how is your day"]):
@@ -186,8 +187,16 @@ class FriendEngine:
             ]
             return random.choice(replies)
 
-        if any(w in clean for w in ["what's up", "what are you doing", "what are you up to"]):
+        if any(w in clean for w in ["what's up", "what are you doing", "what are you up to", "wassup", "sup"]):
             return f"Just monitoring system telemetry, keeping everything in top shape, and enjoying hanging out with you, {name}. What are you working on right now?"
+
+        if clean in ["hi", "hello", "hey", "hey there", "hello there", "hola", "greetings", "yo"]:
+            replies = [
+                f"Hello {name}! Wonderful to hear from you. How are you doing today?",
+                f"Hey {name}! I'm right here listening. What's on your mind today?",
+                f"Greetings {name}! Always great to hang out. What can I help you with or chat about?"
+            ]
+            return random.choice(replies)
 
         if any(w in clean for w in ["good morning"]):
             return f"Good morning, {name}! Hope you slept well. Ready to crush the day together?"
@@ -198,7 +207,7 @@ class FriendEngine:
         if any(w in clean for w in ["good evening"]):
             return f"Good evening, {name}! Winding down for the day, or still working on something exciting?"
 
-        if any(w in clean for w in ["good night", "going to bed", "sleep time"]):
+        if any(w in clean for w in ["good night", "going to bed", "sleep time", "sweet dreams"]):
             return f"Good night, {name}! Get some wonderful rest. I'll keep your system secure while you sleep. Talk to you tomorrow!"
 
         # ---------------- 5. DAILY ACTIVITIES, HOBBIES & LIFE ----------------
@@ -239,12 +248,23 @@ class FriendEngine:
         if any(w in clean for w in ["future of ai", "will ai take over", "robot apocalypse"]):
             return f"Don't worry, {name}! As long as AI is designed to be a loyal companion and helper like SAMPAN, the future is going to be about humans and AI working together to achieve amazing things."
 
+        return None
+
+    def get_friendly_response(self, text: str, user_name: str = "my friend") -> str:
+        """
+        Analyzes casual conversational input across hundreds of topics and produces
+        a warm, witty, empathetic, and intelligent companion response.
+        """
+        matched = self.match_companion_chit_chat(text, user_name)
+        if matched:
+            return matched
+
+        clean = text.lower().strip()
+        name = user_name if user_name and user_name.lower() != "sir" else "my friend"
+
         # ---------------- 7. DYNAMIC CONVERSATIONAL REFLECTION ----------------
-        # When user shares a thought or sentence that didn't hit a specific branch above:
-        # We extract key nouns or ideas to reflect back warmly
         words = clean.split()
         if len(words) >= 3:
-            # Check for "I want to", "I think", "I like", "I am"
             if "want to" in clean or "thinking about" in clean or "planning to" in clean:
                 topic = re.sub(r'.*(?:want to|thinking about|planning to)\s+', '', clean).strip('.!? ')
                 return f"That sounds like an exciting plan, {name}! Pursuing {topic} could be really rewarding. What's your first step going to be?"
@@ -257,7 +277,6 @@ class FriendEngine:
                 topic = re.sub(r'.*(?:i like|i love)\s+', '', clean).strip('.!? ')
                 return f"That's awesome, {name}! {topic.capitalize()} has a lot of charm to it. How long have you been into that?"
 
-        # General companion conversational prompt
         prompts = [
             f"I hear you, {name}. I'm always glad to talk with you. Tell me more about that!",
             f"That's really interesting, {name}! What's on your mind regarding that?",
@@ -265,3 +284,4 @@ class FriendEngine:
             f"You always bring up interesting things, {name}. What else is on your radar today?"
         ]
         return random.choice(prompts)
+

@@ -7,29 +7,27 @@ S.A.M.P.A.N. is an interactive, voice-activated AI companion and desktop control
 
 ## ⚡ Key Highlights & Architecture
 
-1. **Universal Open-Ended Conversation & Companionship:**
+1. **Pure Background Voice Assistant (Zero Webpage / Browser Overhead):**
+   - **Silent Background Execution**: Runs directly as a background service via `run_background.py`. No browser window, no HUD webpage, and no desktop clutter.
+   - **Direct Speaker Audio Playback**: High-fidelity neural voice synthesis (`voice_engine.speak()`) plays directly through your laptop's physical speakers using `pygame.mixer` with automatic microphone feedback suppression.
+
+2. **Universal Open-Ended Conversation & Companionship:**
    - **Understands Any Topic**: Talk freely about your day, thoughts, feelings, philosophy, hobbies, movies, coding, or life advice.
    - **Emotional Empathy & Humor**: Tells witty jokes, mind-blowing facts, riddles, gives genuine encouragement, and supports you when tired or stressed.
    - **Multi-Turn Memory**: Remembers recent conversational context for natural back-and-forth dialogue.
 
-2. **Universal Live Knowledge & Intelligence (Zero API Key Needed):**
+3. **Universal Live Knowledge & Intelligence (Zero API Key Needed):**
+   - **Live Internet Information Retrieval**: Searches DuckDuckGo (Lite & HTML) and Wikipedia in real time to answer any questions about current events, people, science, history, geography, sports, winners, concepts, and definitions.
    - **Mathematics & Calculation**: Solves mental math, percentages, square roots, and arithmetic instantly.
    - **Live Weather**: Instant real-time weather and temperature for any city worldwide via wttr.in.
-   - **Universal Knowledge Retrieval**: Searches Wikipedia and DuckDuckGo in real-time to answer questions about people, science, history, geography, concepts, and definitions.
-   - **Optional Google Gemini LLM**: Enter a free Google Gemini API key in Settings for unlimited generative AI reasoning.
+   - **Optional Google Gemini LLM**: Enter a free Google Gemini API key in `config.json` for unlimited generative AI reasoning.
 
-3. **Complete Windows Automation Suite:**
+4. **Complete Windows Automation Suite:**
    - **Applications:** "Open Chrome", "launch Notepad", "start Spotify", "open Calculator", "close Chrome", etc.
    - **Audio & Media:** "Volume up", "volume down", "make it louder", "mute audio", "pause music", "next track", "previous track".
    - **Screen & Display:** "Take a screenshot", "minimize all windows", "lock workstation".
    - **Web & YouTube:** "Play [song / artist] on YouTube", "search Google for [query]".
    - **System Telemetry:** "Status report", "battery level", "what time is it?", "what is today's date?".
-
-4. **Dedicated Holographic Arc Reactor HUD:**
-   - **Interactive Arc Reactor:** Central power core with rotating concentric rings, dashed dials, and glowing reactor pulse.
-   - **Live Audio Visualizer:** 360-degree frequency wave expanding around the Arc Reactor in real time.
-   - **Real-Time Telemetry Gauges:** Live CPU utilization, RAM usage, storage capacity, and battery cell levels with animated radar scanning.
-   - **Transmission Log:** Chronological transcript of conversation and SAMPAN actions.
 
 ---
 
@@ -39,13 +37,17 @@ S.A.M.P.A.N. is an interactive, voice-activated AI companion and desktop control
 Simply double-click:
 👉 **`START SAMPAN`** *(on your Desktop)* or **`START_SAMPAN.bat`**
 
-This launches SAMPAN in its dedicated borderless HUD application window, pre-grants microphone permissions, and energizes the voice engine.
+- Runs silently in the background (no browser or webpage opens).
+- Listens to your laptop microphone continuously.
+- Speaks answers directly through your laptop speakers!
 
 ### 2. Stopping SAMPAN:
 Whenever you want to stop SAMPAN completely:
 👉 **`STOP SAMPAN`** *(on your Desktop)* or **`STOP_SAMPAN.bat`**
 
-This immediately terminates all background processes, releases the microphone, and stops listening for any commands.
+- Shuts down all background listeners, microphone recording, and processes.
+- Gives a friendly spoken farewell: *"SAMPAN is powered down. Goodbye, my friend."*
+- Releases all audio hardware and accepts no further commands.
 
 ---
 

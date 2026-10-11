@@ -70,8 +70,33 @@ def synthesize_speech(text: str, voice: str = SAMPAN_VOICE, rate: str = "+0%") -
 
     return ""
 
+def speak(text: str):
+    """
+    Synthesizes neural edge-tts speech and plays it directly through the speakers
+    using pygame, with PowerShell SAPI fallback.
+    """
+    if not text:
+        return
+    try:
+        mp3_file = synthesize_speech(text)
+        if mp3_file and os.path.exists(mp3_file):
+            import pygame
+            import time
+            if not pygame.mixer.get_init():
+                pygame.mixer.init()
+            pygame.mixer.music.load(mp3_file)
+            pygame.mixer.music.play()
+            while pygame.mixer.music.get_busy():
+                time.sleep(0.05)
+            return True
+    except Exception as e:
+        print(f"[Neural speak fallback]: {e}")
+
+    # Fallback to direct SAPI
+    speak_direct(text)
+
 def speak_direct(text: str):
-    """Speaks directly on the system speakers (for background/terminal alerts)."""
+    """Speaks directly on the system speakers via PowerShell SAPI."""
     try:
         escaped_text = text.replace('"', '`"').replace("'", "''")
         ps_cmd = (
@@ -79,7 +104,7 @@ def speak_direct(text: str):
             f'$synth = New-Object System.Speech.Synthesis.SpeechSynthesizer; '
             f'$synth.Speak("{escaped_text}")'
         )
-        subprocess.Popen(["powershell", "-NoProfile", "-Command", ps_cmd])
+        subprocess.run(["powershell", "-NoProfile", "-Command", ps_cmd], check=True, timeout=10)
     except Exception as e:
         print(f"[SAMPAN Speech] Direct speak failed: {e}")
 

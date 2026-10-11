@@ -1,7 +1,7 @@
 """
-SAMPAN Knowledge & Information Engine
-Provides real-time mathematical calculation, live weather, universal Wikipedia search,
-and DuckDuckGo instant answers without requiring any API keys.
+SAMPAN Knowledge & Internet Information Engine
+Searches the live internet (DuckDuckGo Live Web Search, Wikipedia, DuckDuckGo Instant Answers,
+and live weather/math) to answer any question asked by the user without requiring API keys.
 """
 
 import re
@@ -9,21 +9,23 @@ import math
 import json
 import urllib.request
 import urllib.parse
+from html import unescape
 
 def clean_for_speech(text: str) -> str:
-    """Cleans text for clean, natural speech synthesis and console display."""
+    """Cleans raw text for clear, natural speech synthesis and console display."""
     if not text:
         return ""
+    text = unescape(text)
     text = re.sub(r'https?://\S+', '', text)
     text = re.sub(r'\([^)]*\)', '', text)  # remove parentheticals like (born 1971)
-    text = re.sub(r'\[[^\]]*\]', '', text)  # remove citations [1]
+    text = re.sub(r'\[[^\]]*\]', '', text)  # remove citations [1], [2]
     text = re.sub(r'[\r\n]+', ' ', text)
     text = re.sub(r'\s+', ' ', text).strip()
-    # Replace common mathematical and degree symbols with spoken words
+    # Replace common symbols with spoken words
     text = text.replace('°C', ' degrees Celsius').replace('°F', ' degrees Fahrenheit')
     text = text.replace('±', 'plus or minus ')
     text = text.replace('²', ' squared').replace('³', ' cubed')
-    # Clean non-ascii artifacts
+    # Filter to standard printable characters
     text = text.encode('ascii', 'ignore').decode()
     return text
 
@@ -67,6 +69,8 @@ def solve_math(query: str) -> str:
 def get_weather_report(query: str) -> str:
     """Fetches real-time weather information for cities using wttr.in."""
     clean = query.lower().strip()
+    if not any(w in clean for w in ["weather", "temperature", "forecast", "how hot", "how cold"]):
+        return ""
     city_match = re.search(r'(?:weather|temperature|forecast)(?:\s+in|\s+for|\s+at)?\s+([a-zA-Z\s]+)', clean, re.I)
     city = city_match.group(1).strip('? ') if city_match else "Hyderabad"
     if not city or len(city) < 2 or city in ["today", "now", "outside", "like"]:
@@ -75,7 +79,7 @@ def get_weather_report(query: str) -> str:
     try:
         url = f"https://wttr.in/{urllib.parse.quote(city)}?format=%C,+temperature+%t"
         req = urllib.request.Request(url, headers={"User-Agent": "curl/7.68.0"})
-        with urllib.request.urlopen(req, timeout=4) as res:
+        with urllib.request.urlopen(req, timeout=5) as res:
             raw = res.read().decode('utf-8', errors='ignore').strip()
             raw = clean_for_speech(raw)
             if raw and "Unknown location" not in raw and "<html" not in raw.lower():
@@ -84,20 +88,80 @@ def get_weather_report(query: str) -> str:
         pass
     return ""
 
-def search_wikipedia(query: str) -> str:
-    """Searches Wikipedia using the query search API and summary endpoint."""
+def search_live_web(query: str) -> str:
+    """
+    Searches the live internet via DuckDuckGo Lite & HTML endpoints,
+    extracting high-confidence answer snippets for spoken delivery.
+    """
+    clean_q = re.sub(r'^(?:sampan|hey sampan|can you tell me|do you know|tell me about|tell me)\s+', '', query, flags=re.I).strip('? ')
+    if not clean_q or len(clean_q) < 3:
+        return ""
+
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        "Content-Type": "application/x-www-form-urlencoded"
+    }
+
+    # Strategy 1: DuckDuckGo Lite (fast, lightweight, highly informative)
     try:
-        clean_q = re.sub(r'^(?:who is|who was|what is|what are|tell me about|explain|describe|define)\s+', '', query, flags=re.I).strip('? ')
+        url_lite = "https://lite.duckduckgo.com/lite/"
+        data_lite = urllib.parse.urlencode({'q': clean_q}).encode('utf-8')
+        req_lite = urllib.request.Request(url_lite, data=data_lite, headers=headers)
+        with urllib.request.urlopen(req_lite, timeout=7) as res:
+            html = res.read().decode('utf-8', errors='ignore')
+            matches = re.findall(r'<td class=[\'"]result-snippet[\'"]>(.*?)</td>', html, re.DOTALL)
+            for m in matches:
+                clean = re.sub(r'<[^>]+>', '', m)
+                clean = clean_for_speech(clean)
+                if len(clean) > 25 and not clean.startswith('Missing:'):
+                    sentences = re.split(r'(?<=[.?!])\s+', clean)
+                    if sentences and sentences[0].strip().endswith('?') and len(sentences) > 1:
+                        sentences = sentences[1:]
+                    if sentences:
+                        res_text = ' '.join(sentences[:2]).strip()
+                        if len(res_text) > 20:
+                            return res_text
+    except Exception:
+        pass
+
+    # Strategy 2: DuckDuckGo HTML POST
+    try:
+        url_html = "https://html.duckduckgo.com/html/"
+        data_html = urllib.parse.urlencode({'q': clean_q}).encode('utf-8')
+        req_html = urllib.request.Request(url_html, data=data_html, headers=headers)
+        with urllib.request.urlopen(req_html, timeout=7) as res:
+            html = res.read().decode('utf-8', errors='ignore')
+            matches = re.findall(r'<a[^>]+class=[\'"]result__snippet[\'"][^>]*>(.*?)</a>', html, re.DOTALL)
+            for m in matches:
+                clean = re.sub(r'<[^>]+>', '', m)
+                clean = clean_for_speech(clean)
+                if len(clean) > 25 and not clean.startswith('Missing:'):
+                    sentences = re.split(r'(?<=[.?!])\s+', clean)
+                    if sentences and sentences[0].strip().endswith('?') and len(sentences) > 1:
+                        sentences = sentences[1:]
+                    if sentences:
+                        res_text = ' '.join(sentences[:2]).strip()
+                        if len(res_text) > 20:
+                            return res_text
+    except Exception:
+        pass
+
+    return ""
+
+def search_wikipedia_live(query: str) -> str:
+    """Searches Wikipedia API for authoritative summaries."""
+    try:
+        clean_q = re.sub(r'^(?:who is|who was|what is|what was|what are|tell me about|explain|describe|define)\s+', '', query, flags=re.I).strip('? ')
         search_url = f"https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch={urllib.parse.quote(clean_q)}&utf8=&format=json"
-        req = urllib.request.Request(search_url, headers={"User-Agent": "SampanAI/2.0 (desktop-assistant)"})
-        with urllib.request.urlopen(req, timeout=5) as res:
+        req = urllib.request.Request(search_url, headers={"User-Agent": "SampanAI/3.0 (https://github.com/Chetanreddysai/Jarvis-AI; chetan@example.com)"})
+        with urllib.request.urlopen(req, timeout=6) as res:
             data = json.loads(res.read().decode('utf-8'))
             hits = data.get("query", {}).get("search", [])
             if hits:
                 title = hits[0]["title"]
-                summary_url = f"https://en.wikipedia.org/api/rest_v1/page/summary/{urllib.parse.quote(title)}"
-                req2 = urllib.request.Request(summary_url, headers={"User-Agent": "SampanAI/2.0 (desktop-assistant)"})
-                with urllib.request.urlopen(req2, timeout=5) as res2:
+                sum_url = f"https://en.wikipedia.org/api/rest_v1/page/summary/{urllib.parse.quote(title)}"
+                req2 = urllib.request.Request(sum_url, headers={"User-Agent": "SampanAI/3.0 (https://github.com/Chetanreddysai/Jarvis-AI; chetan@example.com)"})
+                with urllib.request.urlopen(req2, timeout=6) as res2:
                     d2 = json.loads(res2.read().decode('utf-8'))
                     extract = d2.get("extract", "")
                     if extract:
@@ -105,12 +169,12 @@ def search_wikipedia(query: str) -> str:
                         sentences = [s.strip() for s in clean.split('. ') if s.strip()]
                         if sentences:
                             return '. '.join(sentences[:2]) + '.'
-    except Exception:
+    except Exception as e:
         pass
     return ""
 
-def search_duckduckgo(query: str) -> str:
-    """Fetches instant answer or abstract from DuckDuckGo."""
+def search_duckduckgo_instant(query: str) -> str:
+    """Fetches instant answer or abstract from DuckDuckGo Instant Answer API."""
     try:
         clean_q = urllib.parse.quote(query.strip('? '))
         url = f"https://api.duckduckgo.com/?q={clean_q}&format=json&no_html=1&skip_disambig=1"
@@ -128,11 +192,25 @@ def search_duckduckgo(query: str) -> str:
     return ""
 
 def query_general_knowledge(query: str) -> str:
-    """Tries Wikipedia first, then DuckDuckGo as fallback."""
-    wiki_res = search_wikipedia(query)
-    if wiki_res and len(wiki_res) > 20:
+    """
+    Combines live web search, Wikipedia, and DuckDuckGo instant answers
+    to retrieve accurate, up-to-date answers for any user question.
+    """
+    clean = query.lower().strip()
+
+    # Try live web search first (best for direct facts, recent events, 'how many', 'who won', 'where is')
+    web_res = search_live_web(query)
+    if web_res and len(web_res) > 25:
+        return web_res
+
+    # Try Wikipedia for people, concepts, history, definitions
+    wiki_res = search_wikipedia_live(query)
+    if wiki_res and len(wiki_res) > 25:
         return wiki_res
-    ddg_res = search_duckduckgo(query)
+
+    # Fallback to DuckDuckGo Instant Answer API
+    ddg_res = search_duckduckgo_instant(query)
     if ddg_res and len(ddg_res) > 20:
         return ddg_res
+
     return ""

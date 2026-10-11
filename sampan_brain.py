@@ -145,6 +145,17 @@ class SampanBrain:
         if not user_name or user_name.lower() == "sir":
             user_name = "my friend"
 
+        # ---------------- 0. COMPANION CHIT-CHAT & GREETINGS ----------------
+        companion_reply = self.friend.match_companion_chit_chat(cmd, user_name)
+        if companion_reply:
+            self.friend.record_turn(raw_input, companion_reply)
+            return {
+                "success": True,
+                "action": "companion_chat",
+                "speech": companion_reply,
+                "details": None
+            }
+
         # ---------------- 1. HARDWARE & VOLUME ----------------
         if any(phrase in cmd for phrase in ["volume up", "increase volume", "turn up volume", "louder", "sound up", "raise volume"]):
             res = system_controller.volume_up()
@@ -282,16 +293,38 @@ class SampanBrain:
                     "details": {"source": "gemini"}
                 }
 
-        # ---------------- 9. FACTUAL QUESTIONS & ENCYCLOPEDIA (UNIVERSAL SEARCH) ----------------
-        knowledge_prefixes = [
-            "who is", "who was", "what is", "what was", "what are", "tell me about",
-            "explain", "describe", "define", "meaning of", "history of", "how does",
-            "why is", "why do", "where is", "capital of"
-        ]
-        if any(cmd.startswith(prefix) for prefix in knowledge_prefixes):
+        # ---------------- 9. UNIVERSAL INTERNET KNOWLEDGE & QUESTIONS ----------------
+        is_question = (
+            cmd.endswith("?") or
+            any(cmd.startswith(p) for p in [
+                "who", "what", "where", "when", "why", "how", "which",
+                "tell me", "explain", "describe", "define", "meaning",
+                "can you tell", "do you know", "is there", "are there", "does", "is", "are"
+            ]) or
+            any(w in cmd for w in [
+                "who is", "what is", "where is", "when did", "how does", "why is",
+                "capital of", "invented", "meaning of", "population of", "highest",
+                "tallest", "longest", "fastest", "world cup", "winner of", "score of"
+            ])
+        )
+
+        if is_question:
             info = knowledge_engine.query_general_knowledge(cmd)
             if info:
                 reply = f"Here is what I found about that, {user_name}: {info}"
+                self.friend.record_turn(raw_input, reply)
+                return {
+                    "success": True,
+                    "action": "knowledge_lookup",
+                    "speech": reply,
+                    "details": {"query": cmd, "summary": info}
+                }
+
+        # Also check knowledge engine for factual topic inquiries
+        if len(cmd.split()) >= 2:
+            info = knowledge_engine.query_general_knowledge(cmd)
+            if info and len(info) > 30:
+                reply = f"Here is what I found, {user_name}: {info}"
                 self.friend.record_turn(raw_input, reply)
                 return {
                     "success": True,
