@@ -75,8 +75,9 @@ def start_native_microphone_worker():
                     if raw_text and not is_duplicate_command(raw_text):
                         lower = raw_text.lower()
                         print(f"[SAMPAN Hardware Audio]: '{raw_text}'")
-                        trigger_words = ["sampan", "open", "volume", "play", "screenshot", "status", "mute", "close", "minimize", "power", "exit", "shutdown", "time", "date"]
-                        if any(w in lower for w in trigger_words):
+                        words = raw_text.strip().split()
+                        # Accept any multi-word phrase or direct pings like sampan, hi, hey, help
+                        if len(words) >= 2 or any(w in lower for w in ["sampan", "hi", "hey", "hello", "status", "help", "time", "joke"]):
                             APP_STATE["last_command"] = raw_text
                             result = brain.process_command(raw_text)
                             speech = result.get("speech", "")

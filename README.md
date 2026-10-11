@@ -1,37 +1,35 @@
 # S.A.M.P.A.N. // Autonomous AI Desktop Companion & OS
 ### Real-Time Voice-Controlled Friend & Autonomous PC Assistant
 
-S.A.M.P.A.N. is an interactive, voice-activated AI companion and desktop controller designed to talk with you like a friend, crack jokes, chit-chat, and carry out full Windows PC automation.
+S.A.M.P.A.N. is an interactive, voice-activated AI companion and desktop controller designed to understand anything you say, converse like a trusted friend, answer questions, solve math, check live weather, and carry out full Windows PC automation.
 
 ---
 
 ## ⚡ Key Highlights & Architecture
 
-1. **Conversational Friend & Companion Persona:**
-   - Talks with warmth, humor, and empathy like a trusted companion.
-   - Tells jokes, shares fun facts, supports you when you are tired or stressed, and answers open-ended chit-chat.
-   - Offline conversational engine with optional 1-click Google Gemini AI integration for unlimited depth.
+1. **Universal Open-Ended Conversation & Companionship:**
+   - **Understands Any Topic**: Talk freely about your day, thoughts, feelings, philosophy, hobbies, movies, coding, or life advice.
+   - **Emotional Empathy & Humor**: Tells witty jokes, mind-blowing facts, riddles, gives genuine encouragement, and supports you when tired or stressed.
+   - **Multi-Turn Memory**: Remembers recent conversational context for natural back-and-forth dialogue.
 
-2. **Movie-Authentic Voice Engine:**
-   - Powered by neural voice synthesis (`en-GB-RyanNeural`) for clear, crisp responses.
-   - Offline fallback using Windows SAPI / SpeechSynthesizer.
+2. **Universal Live Knowledge & Intelligence (Zero API Key Needed):**
+   - **Mathematics & Calculation**: Solves mental math, percentages, square roots, and arithmetic instantly.
+   - **Live Weather**: Instant real-time weather and temperature for any city worldwide via wttr.in.
+   - **Universal Knowledge Retrieval**: Searches Wikipedia and DuckDuckGo in real-time to answer questions about people, science, history, geography, concepts, and definitions.
+   - **Optional Google Gemini LLM**: Enter a free Google Gemini API key in Settings for unlimited generative AI reasoning.
 
-3. **Dedicated Holographic Arc Reactor HUD:**
+3. **Complete Windows Automation Suite:**
+   - **Applications:** "Open Chrome", "launch Notepad", "start Spotify", "open Calculator", "close Chrome", etc.
+   - **Audio & Media:** "Volume up", "volume down", "make it louder", "mute audio", "pause music", "next track", "previous track".
+   - **Screen & Display:** "Take a screenshot", "minimize all windows", "lock workstation".
+   - **Web & YouTube:** "Play [song / artist] on YouTube", "search Google for [query]".
+   - **System Telemetry:** "Status report", "battery level", "what time is it?", "what is today's date?".
+
+4. **Dedicated Holographic Arc Reactor HUD:**
    - **Interactive Arc Reactor:** Central power core with rotating concentric rings, dashed dials, and glowing reactor pulse.
-   - **True Power Toggle (Online / Standby):** Click the Arc Reactor or the Power button to turn SAMPAN ON or OFF.
-     - When **ON (Active)**: Glows electric cyan, monitors voice in real time, executes commands.
-     - When **OFF (Standby)**: Arc Reactor dims to warm standby amber, microphones and command processing completely power down to save resources.
-   - **Live Audio Visualizer:** Dynamic frequency wave expanding in 360 degrees around the Arc Reactor in real-time when SAMPAN speaks or hears your voice.
+   - **Live Audio Visualizer:** 360-degree frequency wave expanding around the Arc Reactor in real time.
    - **Real-Time Telemetry Gauges:** Live CPU utilization, RAM usage, storage capacity, and battery cell levels with animated radar scanning.
    - **Transmission Log:** Chronological transcript of conversation and SAMPAN actions.
-
-4. **Complete Windows Automation Suite:**
-   - **Applications:** "Sampan, open Chrome", "open Notepad", "open VS Code", "open Spotify", "open Calculator", "close Chrome", etc.
-   - **Audio & Media:** "Volume up", "volume down", "mute audio", "pause music", "next track", "previous track".
-   - **Screen & Display:** "Take a screenshot", "minimize all windows" (show desktop), "lock workstation".
-   - **Web & Media:** "Search Google for [topic]", "Play [song] on YouTube", "Open [website]".
-   - **System Telemetry:** "Sampan, status report", "Sampan, what time is it?", "what is today's date?".
-   - **AI Brain & Knowledge:** Built-in Wikipedia & general knowledge intelligence, with optional 1-click Google Gemini API key support for open-ended conversation and coding help.
 
 ---
 
@@ -39,45 +37,43 @@ S.A.M.P.A.N. is an interactive, voice-activated AI companion and desktop control
 
 ### 1. Starting SAMPAN:
 Simply double-click:
-👉 **`START_SAMPAN.bat`** *(or the **START SAMPAN** shortcut on your Desktop)*
+👉 **`START SAMPAN`** *(on your Desktop)* or **`START_SAMPAN.bat`**
 
-This launches SAMPAN in its dedicated borderless HUD application window and energizes the voice engine.
+This launches SAMPAN in its dedicated borderless HUD application window, pre-grants microphone permissions, and energizes the voice engine.
 
 ### 2. Stopping SAMPAN:
 Whenever you want to stop SAMPAN completely:
-👉 **`STOP_SAMPAN.bat`** *(or the **STOP SAMPAN** shortcut on your Desktop)*
+👉 **`STOP SAMPAN`** *(on your Desktop)* or **`STOP_SAMPAN.bat`**
 
 This immediately terminates all background processes, releases the microphone, and stops listening for any commands.
 
-### Method 2: Command Line
-```powershell
-cd C:\Users\annar\.gemini\antigravity\scratch\jarvis-ai
-python run_sampan.py
-```
-
 ---
 
-## 🎙️ Spoken Voice Commands
+## 🎙️ Spoken Voice Commands & Conversations
 
-| Category | Voice Commands Examples | Action |
+| Category | Example Voice Inputs | Action / Response |
 | :--- | :--- | :--- |
-| **Friend & Chit-Chat** | *"Sampan, how are you doing buddy?"* / *"Tell me a joke"* / *"I'm feeling tired"* / *"Are you my friend?"* | Talks like a warm, witty best friend, jokes, and chats |
-| **Power Toggle** | Click the central Arc Reactor | Toggles between **ONLINE** and **STANDBY** |
-| **System Status** | *"Sampan, status report"* or *"Sampan, system status"* | Reads out CPU %, RAM used, battery level & time |
-| **Launch Apps** | *"Sampan, open Chrome"* / *"open Notepad"* / *"open Spotify"* | Launches the requested Windows program |
-| **Close Apps** | *"Sampan, close Chrome"* / *"terminate Notepad"* | Exits the target program |
-| **Audio Volume** | *"Sampan, volume up"* / *"volume down"* / *"mute"* | Adjusts master system audio level |
-| **Media Playback** | *"Sampan, pause music"* / *"next track"* / *"previous track"* | Controls background music and videos |
-| **Screenshots** | *"Sampan, take a screenshot"* | Captures screen to `screenshots/` directory |
-| **Windows OS** | *"Sampan, minimize all"* / *"lock computer"* | Minimizes all windows or locks workstation |
-| **Web & YouTube** | *"Sampan, play music on YouTube"* / *"search Google for [query]"* | Plays media on YouTube or searches Google |
-| **Time & Date** | *"Sampan, what time is it?"* / *"what is today's date?"* | Speaks current time and date |
-| **Knowledge** | *"Sampan, who is Nikola Tesla?"* / *"what is quantum computing?"* | Summarizes information using knowledge engine |
+| **Open-Ended Chit-Chat** | *"How are you doing buddy?"* / *"Tell me a joke"* / *"Tell me a riddle"* | Warm, witty banter, humor, riddles, and daily check-ins |
+| **Feelings & Empathy** | *"I'm feeling so exhausted"* / *"I had a great day"* / *"I'm stressed"* | Empathetic support, active listening, and uplifting tips |
+| **Life Advice & Focus** | *"Give me advice on staying focused"* / *"Can't sleep"* / *"Motivate me"* | Actionable advice (e.g. Pomodoro, 4-7-8 breathing, coding tips) |
+| **General Knowledge** | *"Why do birds migrate?"* / *"Who was Nikola Tesla?"* / *"What is quantum entanglement?"* | Searches live Wikipedia & DuckDuckGo, summarizes in 2 clear sentences |
+| **Math & Calculation** | *"What is 75 times 8?"* / *"Calculate 20 percent of 500"* / *"Square root of 144"* | Evaluates expressions and speaks the exact mathematical answer |
+| **Live Weather** | *"Weather in Mumbai"* / *"Temperature in London"* / *"Weather today"* | Real-time live temperature and weather condition report |
+| **Philosophical Thoughts** | *"Do you believe in aliens?"* / *"What is the meaning of life?"* | Engaging, thoughtful companion opinions on deep questions |
+| **Launch Apps** | *"Open Chrome"* / *"launch Notepad"* / *"start Spotify"* / *"open VS Code"* | Launches target Windows application or web tool |
+| **Close Apps** | *"Close Chrome"* / *"terminate Notepad"* | Closes the requested application |
+| **Audio Volume** | *"Volume up"* / *"volume down"* / *"make it louder"* / *"mute"* | Adjusts master system audio level |
+| **Media Playback** | *"Pause music"* / *"next track"* / *"previous track"* | Controls background music and videos |
+| **Screenshots** | *"Take a screenshot"* / *"capture screen"* | Captures screen to `screenshots/` directory |
+| **Windows OS** | *"Minimize all"* / *"lock computer"* | Minimizes all windows or locks workstation |
+| **YouTube & Web** | *"Play songs on YouTube"* / *"search Google for [query]"* | Plays media on YouTube or searches Google |
+| **Time & Date** | *"What time is it?"* / *"what is today's date?"* | Speaks current time and date |
+| **System Status** | *"Status report"* / *"battery percentage"* | Reads CPU %, RAM used, battery level & time |
 
 ---
 
 ## ⚙️ Settings & Gemini API (Optional)
 Click the **⚙ SETTINGS** button on the bottom right of the HUD to:
-- Enter your **Google Gemini API Key** for conversational AI reasoning.
+- Enter a **Google Gemini API Key** (from [Google AI Studio](https://aistudio.google.com/)) for unlimited generative AI capability.
 - Adjust **Voice Speed** (-10%, standard, +10%).
 - Change your **Callsign / Name** (default: "my friend").

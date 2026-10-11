@@ -378,12 +378,12 @@ function animateMicBars() {
 async function handleRecognizedCommand(text) {
     if (!isSystemActive) return;
 
-    // Filter out accidental background noise if it doesn't mention sampan or obvious commands
-    const lower = text.toLowerCase();
-    const hasWakeWord = lower.includes("sampan") || lower.startsWith("hey") || lower.startsWith("ok") || lower.startsWith("open") || lower.startsWith("play") || lower.startsWith("volume") || lower.startsWith("status");
+    const lower = text.toLowerCase().trim();
+    const words = text.trim().split(/\s+/);
+    const isDirectWake = lower.includes("sampan") || words.length >= 2 || ["hi", "hey", "hello", "status", "help", "time", "joke"].includes(lower);
 
-    if (!hasWakeWord && text.split(" ").length < 2) {
-        return; // Ignore random one-word background sounds
+    if (!isDirectWake) {
+        return; // Ignore random one-syllable background sounds
     }
 
     addLogEntry('user', text);
