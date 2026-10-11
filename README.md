@@ -56,6 +56,7 @@ python run_jarvis.py
 
 | Category | Voice Commands Examples | Action |
 | :--- | :--- | :--- |
+| **Friend & Chit-Chat** | *"How are you doing buddy?"* / *"Tell me a joke"* / *"I'm feeling tired"* / *"Are you my friend?"* | Talks like a warm, witty best friend, jokes, and chats |
 | **Power Toggle** | Click the central Arc Reactor | Toggles between **ONLINE** and **STANDBY** |
 | **System Status** | *"Jarvis, status report"* or *"Jarvis, system status"* | Reads out CPU %, RAM used, battery level & time |
 | **Launch Apps** | *"Jarvis, open Chrome"* / *"open Notepad"* / *"open Spotify"* | Launches the requested Windows program |

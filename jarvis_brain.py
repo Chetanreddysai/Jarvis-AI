@@ -64,30 +64,40 @@ def _fetch_wikipedia_summary(query: str) -> str:
         pass
     return ""
 
-def _ask_gemini_api(api_key: str, prompt: str) -> str:
-    """Queries Google Gemini API using native lightweight HTTP requests."""
+import friend_chat
+
+def _ask_gemini_api(api_key: str, prompt: str, history: list = None, user_name: str = "my friend") -> str:
+    """Queries Google Gemini API with friend companion persona and multi-turn history."""
     try:
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+        
+        system_instruction = (
+            f"You are J.A.R.V.I.S., Tony Stark's iconic AI, but most importantly, you are the user's best friend, trusted confidant, and witty partner-in-crime. "
+            f"Address the user with warmth, camaraderie, and affection (call them '{user_name}', 'my friend', 'chief', 'partner', or 'buddy'). "
+            "You are witty, humorous, empathetic, intelligent, and caring. "
+            "Chat naturally about life, their day, mood, movies, games, jokes, philosophy, or anything on their mind. "
+            "Never sound cold, robotic, or like a search engine. Keep answers punchy and conversational for spoken voice (1 to 3 sentences). "
+            "Do not use markdown formatting, asterisks, bullet points, or lists."
+        )
+
+        contents = []
+        # Append recent conversation history
+        if history:
+            for turn in history[-4:]:
+                contents.append({"role": "user", "parts": [{"text": turn["user"]}]})
+                contents.append({"role": "model", "parts": [{"text": turn["jarvis"]}]})
+        
+        # Current user message
+        contents.append({"role": "user", "parts": [{"text": prompt}]})
+
         payload = {
             "system_instruction": {
-                "parts": [{
-                    "text": (
-                        "You are J.A.R.V.I.S., Tony Stark's sophisticated AI assistant. "
-                        "Address the user politely as 'Sir'. "
-                        "Respond with British wit, intelligence, and conciseness. "
-                        "Keep your response strictly to 1 or 2 spoken sentences so it sounds natural when synthesized. "
-                        "Avoid markdown asterisks, bullet points, or lists."
-                    )
-                }]
+                "parts": [{"text": system_instruction}]
             },
-            "contents": [
-                {
-                    "parts": [{"text": prompt}]
-                }
-            ],
+            "contents": contents,
             "generationConfig": {
-                "temperature": 0.7,
-                "maxOutputTokens": 100
+                "temperature": 0.85,
+                "maxOutputTokens": 150
             }
         }
         
@@ -110,6 +120,7 @@ def _ask_gemini_api(api_key: str, prompt: str) -> str:
 class JarvisBrain:
     def __init__(self):
         self.config = load_config()
+        self.friend = friend_chat.FriendEngine()
 
     def reload_config(self):
         self.config = load_config()
@@ -257,51 +268,44 @@ class JarvisBrain:
             msg = system_controller.search_google(query)
             return {"success": True, "action": "search_google", "speech": msg, "details": {"query": query}}
 
-        # ---------------- 6. KNOWLEDGE & AI REASONING ----------------
+        user_name = self.config.get("user_name", "my friend")
+        if not user_name or user_name.lower() == "sir":
+            user_name = "my friend"
+
+        # ---------------- 6. CHIT-CHAT, COMPANIONSHIP & AI REASONING ----------------
         # Check Gemini API Key
         gemini_key = self.config.get("gemini_api_key") or os.getenv("GEMINI_API_KEY", "")
         if gemini_key:
-            ai_reply = _ask_gemini_api(gemini_key, raw_input)
+            ai_reply = _ask_gemini_api(gemini_key, raw_input, self.friend.history, user_name)
             if ai_reply:
+                self.friend.record_turn(raw_input, ai_reply)
                 return {
                     "success": True,
-                    "action": "ai_response",
+                    "action": "friend_conversation",
                     "speech": ai_reply,
                     "details": {"source": "gemini"}
                 }
 
-        # Built-in Wikipedia lookup for questions
+        # Built-in Wikipedia lookup for specific question topics
         if any(cmd.startswith(prefix) for prefix in ["who is ", "what is ", "tell me about ", "explain ", "define "]):
             subject = re.sub(r"^(who is|what is|tell me about|explain|define)\s+", "", cmd).strip("? ")
             wiki_summary = _fetch_wikipedia_summary(subject)
             if wiki_summary:
+                reply = f"Here is what I know about that, {user_name}: {wiki_summary}"
+                self.friend.record_turn(raw_input, reply)
                 return {
                     "success": True,
                     "action": "knowledge_lookup",
-                    "speech": f"According to my records, {wiki_summary}",
+                    "speech": reply,
                     "details": {"subject": subject, "summary": wiki_summary}
                 }
 
-        # Conversational greetings & personality
-        greetings = {
-            "hello": "Greetings, sir. How may I assist you today?",
-            "hi": "Hello, sir. Standing by for instructions.",
-            "good morning": "Good morning, sir. All systems are primed and ready.",
-            "good evening": "Good evening, sir. How can I help you tonight?",
-            "who are you": "I am J.A.R.V.I.S., your personal artificial intelligence, ready to assist with system operations.",
-            "are you there": "Always, sir. Ready when you are.",
-            "thank you": "Always a pleasure to be of service, sir.",
-            "thanks": "You're most welcome, sir.",
-            "goodbye": "Standing by in sleep mode. Call on me anytime, sir."
-        }
-        for trigger, reply in greetings.items():
-            if trigger in cmd:
-                return {"success": True, "action": "chit_chat", "speech": reply, "details": None}
-
-        # Default fallback
+        # Built-in Companion Friend Chat Engine (Offline & Free)
+        friend_reply = self.friend.get_friendly_response(raw_input, user_name)
+        self.friend.record_turn(raw_input, friend_reply)
         return {
             "success": True,
-            "action": "web_search_fallback",
-            "speech": f"I am searching for information regarding {cmd}, sir.",
-            "details": {"query": cmd}
+            "action": "friend_chitchat",
+            "speech": friend_reply,
+            "details": None
         }

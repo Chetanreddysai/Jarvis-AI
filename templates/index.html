@@ -113,12 +113,14 @@
                 <div class="voice-guide">
                     <div class="guide-title">VOICE PROTOCOLS</div>
                     <ul class="guide-list">
+                        <li>"Jarvis, how are you doing buddy?"</li>
+                        <li>"Jarvis, tell me a joke / fun fact"</li>
+                        <li>"Jarvis, are you my friend?"</li>
                         <li>"Jarvis, open [Chrome / Spotify / App]"</li>
                         <li>"Jarvis, volume up / down / mute"</li>
                         <li>"Jarvis, play [song] on YouTube"</li>
                         <li>"Jarvis, take a screenshot"</li>
                         <li>"Jarvis, status report"</li>
-                        <li>"Jarvis, lock workstation"</li>
                     </ul>
                 </div>
             </aside>
@@ -184,11 +186,12 @@
 
                 <!-- Quick Action Bar -->
                 <div class="quick-commands">
+                    <button class="hud-pill" onclick="triggerPreset('Jarvis, how are you doing buddy?')">💬 Chat</button>
+                    <button class="hud-pill" onclick="triggerPreset('Jarvis, tell me a joke')">😄 Joke</button>
+                    <button class="hud-pill" onclick="triggerPreset('Jarvis, tell me a fun fact')">💡 Fact</button>
                     <button class="hud-pill" onclick="triggerPreset('Jarvis, status report')">Status</button>
-                    <button class="hud-pill" onclick="triggerPreset('Jarvis, volume up')">Vol +</button>
-                    <button class="hud-pill" onclick="triggerPreset('Jarvis, volume down')">Vol -</button>
                     <button class="hud-pill" onclick="triggerPreset('Jarvis, take a screenshot')">Screenshot</button>
-                    <button class="hud-pill" onclick="triggerPreset('Jarvis, minimize all')">Desktop</button>
+                    <button class="hud-pill" onclick="triggerPreset('Jarvis, volume up')">Vol +</button>
                 </div>
 
                 <!-- Text command backup input -->
