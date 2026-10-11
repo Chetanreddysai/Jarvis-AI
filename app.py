@@ -170,6 +170,17 @@ def execute_command():
     if audio_file:
         audio_url = f"/api/audio?file={os.path.basename(audio_file)}"
 
+    # Handle Shutdown or Standby Actions
+    action = result.get("action", "unknown")
+    if action == "shutdown_jarvis":
+        def kill_process():
+            time.sleep(3.5)
+            os._exit(0)
+        threading.Thread(target=kill_process, daemon=True).start()
+
+    elif action == "standby_jarvis":
+        APP_STATE["is_active"] = False
+
     return jsonify({
         "success": result.get("success", True),
         "action": result.get("action", "unknown"),

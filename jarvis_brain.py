@@ -193,6 +193,23 @@ class JarvisBrain:
             telemetry = system_controller.get_system_telemetry()
             return {"success": True, "action": "date_check", "speech": f"Today is {telemetry['date']}, sir.", "details": telemetry}
 
+        # ---------------- 2.5 POWER DOWN & STANDBY ----------------
+        if any(phrase in cmd for phrase in ["power down", "shut down jarvis", "close jarvis", "terminate jarvis", "exit jarvis", "quit jarvis"]):
+            return {
+                "success": True,
+                "action": "shutdown_jarvis",
+                "speech": "Powering down all core protocols. Goodbye, sir.",
+                "details": None
+            }
+
+        if any(phrase in cmd for phrase in ["go to sleep", "enter standby", "sleep mode", "standby mode"]):
+            return {
+                "success": True,
+                "action": "standby_jarvis",
+                "speech": "Entering standby power mode. Sleep well, sir.",
+                "details": None
+            }
+
         # ---------------- 3. SCREENSHOT & WINDOW CONTROLS ----------------
         if any(phrase in cmd for phrase in ["screenshot", "take a screenshot", "capture screen"]):
             ok, filepath, msg = system_controller.take_screenshot()
