@@ -5,6 +5,7 @@ Executes voice-activated commands to manage apps, audio, displays, power, and te
 
 import os
 import sys
+import re
 import time
 import ctypes
 import subprocess
@@ -29,8 +30,10 @@ APP_REGISTRY = {
     "chrome": "start chrome",
     "google chrome": "start chrome",
     "edge": "start msedge",
+    "microsoft edge": "start msedge",
     "browser": "start msedge",
     "notepad": "notepad",
+    "notepad++": "start notepad++",
     "calculator": "calc",
     "calc": "calc",
     "terminal": "start wt",
@@ -49,12 +52,50 @@ APP_REGISTRY = {
     "spotify": "start spotify:",
     "paint": "mspaint",
     "word": "start winword",
+    "microsoft word": "start winword",
+    "ms word": "start winword",
+    "winword": "start winword",
     "excel": "start excel",
+    "microsoft excel": "start excel",
+    "ms excel": "start excel",
     "powerpoint": "start powerpnt",
+    "microsoft powerpoint": "start powerpnt",
+    "teams": "start msteams:",
+    "microsoft teams": "start msteams:",
+    "ms teams": "start msteams:",
+    "whatsapp": "start whatsapp:",
     "discord": "start discord:",
     "downloads": "explorer shell:Downloads",
     "documents": "explorer shell:Personal",
     "desktop": "explorer shell:Desktop"
+}
+
+# Recognized Web Services & Cloud Apps
+WEB_SERVICES = {
+    "teams": "https://teams.microsoft.com",
+    "microsoft teams": "https://teams.microsoft.com",
+    "ms teams": "https://teams.microsoft.com",
+    "gmail": "https://mail.google.com",
+    "email": "https://mail.google.com",
+    "mail": "https://mail.google.com",
+    "youtube": "https://www.youtube.com",
+    "whatsapp": "https://web.whatsapp.com",
+    "whatsapp web": "https://web.whatsapp.com",
+    "github": "https://github.com",
+    "chatgpt": "https://chatgpt.com",
+    "google": "https://www.google.com",
+    "maps": "https://maps.google.com",
+    "google maps": "https://maps.google.com",
+    "drive": "https://drive.google.com",
+    "google drive": "https://drive.google.com",
+    "calendar": "https://calendar.google.com",
+    "linkedin": "https://www.linkedin.com",
+    "twitter": "https://x.com",
+    "x": "https://x.com",
+    "instagram": "https://www.instagram.com",
+    "netflix": "https://www.netflix.com",
+    "reddit": "https://www.reddit.com",
+    "amazon": "https://www.amazon.in"
 }
 
 def _send_key_event(vk_code):
@@ -97,36 +138,85 @@ def media_previous():
     _send_key_event(VK_MEDIA_PREV)
     return "Returned to previous track"
 
-# ================= APPLICATION MANAGEMENT =================
+# ================= APPLICATION & WEB MANAGEMENT =================
+
+def open_web_service_in_browser(service_name: str, browser: str = "chrome") -> tuple[bool, str]:
+    """Launches a specific web service or site in a designated browser."""
+    clean_svc = service_name.lower().strip()
+    clean_browser = browser.lower().strip()
+
+    # Determine browser CLI launcher
+    if "edge" in clean_browser:
+        browser_cmd = "start msedge"
+    elif "chrome" in clean_browser:
+        browser_cmd = "start chrome"
+    else:
+        browser_cmd = "start"
+
+    # Resolve URL
+    url = WEB_SERVICES.get(clean_svc)
+    if not url:
+        if clean_svc.startswith("http://") or clean_svc.startswith("https://"):
+            url = clean_svc
+        elif "." in clean_svc and not " " in clean_svc:
+            url = f"https://{clean_svc}"
+        else:
+            url = f"https://www.google.com/search?q={clean_svc}"
+
+    try:
+        subprocess.Popen(f"{browser_cmd} \"{url}\"", shell=True)
+        return True, f"Opening {service_name} in {clean_browser}."
+    except Exception as e:
+        return False, f"Failed to open {service_name} in {clean_browser}: {e}"
 
 def open_application(app_name: str) -> tuple[bool, str]:
     """Launches an application by name or recognized alias."""
     clean_name = app_name.lower().strip()
-    
-    # Direct alias match
+
+    # Direct alias match in APP_REGISTRY
     if clean_name in APP_REGISTRY:
         cmd = APP_REGISTRY[clean_name]
         try:
             subprocess.Popen(cmd, shell=True)
-            return True, f"Launching {app_name}, sir."
+            return True, f"Launching {app_name} for you."
         except Exception as e:
             return False, f"Failed to launch {app_name}: {e}"
 
-    # Partial search in registry
+    # Check WEB_SERVICES (e.g. "open teams", "open gmail")
+    if clean_name in WEB_SERVICES:
+        url = WEB_SERVICES[clean_name]
+        try:
+            subprocess.Popen(f"start \"\" \"{url}\"", shell=True)
+            return True, f"Opening {app_name} in your browser."
+        except Exception:
+            pass
+
+    # Partial search in registry (whole word priority)
     for key, cmd in APP_REGISTRY.items():
-        if key in clean_name or clean_name in key:
+        if key == clean_name or re.search(r'\b' + re.escape(key) + r'\b', clean_name):
             try:
                 subprocess.Popen(cmd, shell=True)
-                return True, f"Opening {key}, sir."
+                return True, f"Opening {key} for you."
             except Exception as e:
                 return False, f"Error opening {key}: {e}"
 
-    # Fallback: attempt to start generic process
+    # Fallback: attempt to start generic process or URL
     try:
-        subprocess.Popen(f"start {clean_name}", shell=True)
+        subprocess.Popen(f"start \"\" {clean_name}", shell=True)
         return True, f"Attempting to launch {app_name}."
     except Exception as e:
         return False, f"Could not locate an application named {app_name}."
+
+def type_text_into_window(text: str) -> bool:
+    """Simulates typing text directly into the currently focused window."""
+    try:
+        import pyautogui
+        pyautogui.FAILSAFE = False
+        pyautogui.write(text, interval=0.03)
+        return True
+    except Exception as e:
+        print(f"[Typing Error]: {e}")
+        return False
 
 def close_application(app_name: str) -> tuple[bool, str]:
     """Terminates running processes matching the name."""

@@ -29,6 +29,24 @@ def clean_for_speech(text: str) -> str:
     text = text.encode('ascii', 'ignore').decode()
     return text
 
+def format_spoken_answer(text: str, query: str = "") -> str:
+    """Polishes raw internet search snippets into articulate, human-like spoken answers."""
+    if not text:
+        return ""
+    clean = text.strip()
+    # Strip leading timestamps like "Jun 29, 2024 - ", "12 hours ago - "
+    clean = re.sub(r'^(?:[A-Za-z]{3,9}\s+\d{1,2},?\s+\d{4}|\d{1,2}\s+[A-Za-z]{3,9}\s+\d{4}|\d+\s+(?:days?|hours?|mins?)\s+ago)\s*[-:]?\s*', '', clean)
+    # Strip leading website navigation headers like "Former Prime Ministers PM's Profile ", "Home > News > ", "Profile - "
+    clean = re.sub(r'^(?:(?:Former\s+)?Prime\s+Ministers?\s+(?:PM\'?s?\s+)?Profile\s*|Home\s*>\s*|Overview\s*[-|:]?\s*)+', '', clean, flags=re.I)
+    # Strip trailing website footer artifacts
+    clean = re.sub(r'(?:Read more|Click here|Full article|Image credit|Photo by|Sign up|\.\.\.).*$', '', clean, flags=re.I)
+    clean = clean_for_speech(clean)
+    if clean:
+        clean = clean[0].upper() + clean[1:]
+        if not clean.endswith(('.', '!', '?')):
+            clean += '.'
+    return clean
+
 def solve_math(query: str) -> str:
     """Detects and calculates mathematical expressions in natural language."""
     clean = query.lower().strip()
@@ -120,7 +138,7 @@ def search_live_web(query: str) -> str:
                     if sentences:
                         res_text = ' '.join(sentences[:2]).strip()
                         if len(res_text) > 20:
-                            return res_text
+                            return format_spoken_answer(res_text, query)
     except Exception:
         pass
 
@@ -142,7 +160,7 @@ def search_live_web(query: str) -> str:
                     if sentences:
                         res_text = ' '.join(sentences[:2]).strip()
                         if len(res_text) > 20:
-                            return res_text
+                            return format_spoken_answer(res_text, query)
     except Exception:
         pass
 
@@ -168,7 +186,8 @@ def search_wikipedia_live(query: str) -> str:
                         clean = clean_for_speech(extract)
                         sentences = [s.strip() for s in clean.split('. ') if s.strip()]
                         if sentences:
-                            return '. '.join(sentences[:2]) + '.'
+                            ans = '. '.join(sentences[:2]) + '.'
+                            return format_spoken_answer(ans, query)
     except Exception as e:
         pass
     return ""
@@ -186,7 +205,8 @@ def search_duckduckgo_instant(query: str) -> str:
                 clean = clean_for_speech(abstract)
                 sentences = [s.strip() for s in clean.split('. ') if s.strip()]
                 if sentences:
-                    return '. '.join(sentences[:2]) + '.'
+                    ans = '. '.join(sentences[:2]) + '.'
+                    return format_spoken_answer(ans, query)
     except Exception:
         pass
     return ""

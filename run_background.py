@@ -57,19 +57,25 @@ def main():
     r = sr.Recognizer()
     r.energy_threshold = 300
     r.dynamic_energy_threshold = True
-    r.pause_threshold = 0.7
+    r.dynamic_energy_adjustment_damping = 0.15
+    r.dynamic_energy_ratio = 1.5
+    r.pause_threshold = 1.1
+    r.non_speaking_duration = 0.8
     
     try:
         mic = sr.Microphone()
         with mic as source:
-            r.adjust_for_ambient_noise(source, duration=0.8)
+            r.adjust_for_ambient_noise(source, duration=1.2)
+            if r.energy_threshold < 250:
+                r.energy_threshold = 250
     except Exception as e:
         logging.error(f"Microphone initialization failed: {e}")
         voice_engine.speak("Microphone hardware error. Please check your audio settings.")
         return
 
     # Announce ready status through speakers
-    startup_greeting = "SAMPAN is online and listening in the background, my friend."
+    user_name = brain.memory.get_user_name() or "my friend"
+    startup_greeting = f"SAMPAN is online and listening closely in the background, {user_name}."
     logging.info(f"Speaking: {startup_greeting}")
     voice_engine.speak(startup_greeting)
 
@@ -79,15 +85,27 @@ def main():
     while True:
         try:
             with mic as source:
-                audio = r.listen(source, timeout=5, phrase_time_limit=10)
+                audio = r.listen(source, timeout=6, phrase_time_limit=15)
             
-            raw_text = r.recognize_google(audio).strip()
+            raw_text = ""
+            # Multi-accent recognition: primary en-IN with fallback to en-US
+            try:
+                raw_text = r.recognize_google(audio, language="en-IN").strip()
+            except (sr.UnknownValueError, sr.RequestError):
+                pass
+
+            if not raw_text:
+                try:
+                    raw_text = r.recognize_google(audio, language="en-US").strip()
+                except Exception:
+                    raw_text = ""
+
             now = time.time()
             if not raw_text:
                 continue
 
-            # Duplicate suppression within 2.5 seconds
-            if raw_text.lower() == last_cmd_text and (now - last_cmd_time) < 2.5:
+            # Duplicate suppression within 2.0 seconds
+            if raw_text.lower() == last_cmd_text and (now - last_cmd_time) < 2.0:
                 continue
             
             last_cmd_text = raw_text.lower()

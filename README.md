@@ -55,14 +55,17 @@ Whenever you want to stop SAMPAN completely:
 
 | Category | Example Voice Inputs | Action / Response |
 | :--- | :--- | :--- |
+| **Learning & Memory** | *"My name is Chetan"* / *"Remember that my exam is tomorrow"* / *"What do you remember?"* | Learns user profile, saves reminders, and recaps personal memory permanently |
+| **Custom Skill Learning** | *"When I say work, open Chrome and Teams"* | Learns custom multi-action command aliases and executes on cue |
 | **Open-Ended Chit-Chat** | *"How are you doing buddy?"* / *"Tell me a joke"* / *"Tell me a riddle"* | Warm, witty banter, humor, riddles, and daily check-ins |
 | **Feelings & Empathy** | *"I'm feeling so exhausted"* / *"I had a great day"* / *"I'm stressed"* | Empathetic support, active listening, and uplifting tips |
 | **Life Advice & Focus** | *"Give me advice on staying focused"* / *"Can't sleep"* / *"Motivate me"* | Actionable advice (e.g. Pomodoro, 4-7-8 breathing, coding tips) |
-| **General Knowledge** | *"Why do birds migrate?"* / *"Who was Nikola Tesla?"* / *"What is quantum entanglement?"* | Searches live Wikipedia & DuckDuckGo, summarizes in 2 clear sentences |
+| **General Knowledge** | *"Who is the Prime Minister of India?"* / *"National song of India"* / *"Why do birds migrate?"* | Searches live Wikipedia & DuckDuckGo with polished conversational speech |
 | **Math & Calculation** | *"What is 75 times 8?"* / *"Calculate 20 percent of 500"* / *"Square root of 144"* | Evaluates expressions and speaks the exact mathematical answer |
 | **Live Weather** | *"Weather in Mumbai"* / *"Temperature in London"* / *"Weather today"* | Real-time live temperature and weather condition report |
 | **Philosophical Thoughts** | *"Do you believe in aliens?"* / *"What is the meaning of life?"* | Engaging, thoughtful companion opinions on deep questions |
-| **Launch Apps** | *"Open Chrome"* / *"launch Notepad"* / *"start Spotify"* / *"open VS Code"* | Launches target Windows application or web tool |
+| **Launch Apps & Web** | *"Open Chrome"* / *"open teams in Chrome"* / *"edge"* / *"open Word"* | Launches Windows apps and opens web services in targeted browser |
+| **Typing & Dictation** | *"Type hello at the rate gmail.com"* / *"press enter"* | Types dictated text or presses keys in active window |
 | **Close Apps** | *"Close Chrome"* / *"terminate Notepad"* | Closes the requested application |
 | **Audio Volume** | *"Volume up"* / *"volume down"* / *"make it louder"* / *"mute"* | Adjusts master system audio level |
 | **Media Playback** | *"Pause music"* / *"next track"* / *"previous track"* | Controls background music and videos |

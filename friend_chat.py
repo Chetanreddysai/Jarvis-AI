@@ -48,6 +48,14 @@ MOTIVATION_QUOTES = [
     "The secret of getting ahead is getting started. Whatever you're working on, I believe in you!"
 ]
 
+def _has_word(text: str, *words: str) -> bool:
+    """Checks if any of the given words or phrases appear with word boundaries in text."""
+    for w in words:
+        pattern = r'(?:\b|\A)' + re.escape(w.strip()) + r'(?:\b|\Z)'
+        if re.search(pattern, text, re.IGNORECASE):
+            return True
+    return False
+
 class FriendEngine:
     def __init__(self):
         self.history = []
@@ -69,105 +77,105 @@ class FriendEngine:
         name = user_name if user_name and user_name.lower() != "sir" else "my friend"
 
         # ---------------- 1. HUMOR & ENTERTAINMENT ----------------
-        if any(w in clean for w in ["joke", "make me laugh", "say something funny", "tell me a joke", "crack a joke", "another joke"]):
+        if _has_word(clean, "joke", "make me laugh", "say something funny", "tell me a joke", "crack a joke", "another joke"):
             joke = random.choice(JOKES)
             return f"Here's one for you, {name}: {joke}"
 
-        if any(w in clean for w in ["riddle", "give me a riddle", "ask me a riddle"]):
+        if _has_word(clean, "riddle", "give me a riddle", "ask me a riddle"):
             riddle = random.choice(RIDDLES)
             return f"Here's a riddle for you, {name}: {riddle}"
 
-        if any(w in clean for w in ["fun fact", "tell me something cool", "interesting fact", "random fact", "tell me a fact"]):
+        if _has_word(clean, "fun fact", "tell me something cool", "interesting fact", "random fact", "tell me a fact"):
             fact = random.choice(FUN_FACTS)
             return f"Here is something fascinating, {name}: {fact}"
 
         # Specific Advice requests
-        if any(w in clean for w in ["focus", "staying focused", "procrastinating", "concentrate"]):
+        if _has_word(clean, "focus", "staying focused", "procrastinating", "concentrate"):
             return (
                 f"To lock in your focus, {name}, try the 25-minute Pomodoro method: pick one single task, eliminate phone distractions, "
                 f"and work until the timer rings. Taking brief breaks keeps your brain fresh!"
             )
 
-        if any(w in clean for w in ["can't sleep", "trouble sleeping", "insomnia"]):
+        if _has_word(clean, "can't sleep", "trouble sleeping", "insomnia"):
             return (
                 f"For restful sleep, {name}, dim bright screens 45 minutes before bed, keep the room pleasantly cool, "
                 f"and try 4-7-8 breathing: inhale for 4 seconds, hold for 7, and exhale slowly for 8."
             )
 
-        if any(w in clean for w in ["learn coding", "learning to code", "advice on programming"]):
+        if _has_word(clean, "learn coding", "learning to code", "advice on programming"):
             return (
                 f"The golden rule of coding, {name}, is building real mini-projects instead of just watching tutorials. "
                 f"Pick an idea you care about, break it into tiny steps, and don't be afraid of error messages!"
             )
 
-        if any(w in clean for w in ["healthy", "fitness", "workout advice"]):
+        if _has_word(clean, "healthy", "fitness", "workout advice"):
             return (
                 f"The best routine is the one you can stick to, {name}! Even 25 minutes of daily walking, staying well hydrated, "
                 f"and prioritizing protein and sleep will make a massive difference in your energy."
             )
 
-        if any(w in clean for w in ["motivate me", "motivation", "inspire me", "quote", "say something inspiring", "give me advice", "advice", "what should i do", "tips"]):
+        if _has_word(clean, "motivate me", "motivation", "inspire me", "quote", "say something inspiring", "give me advice", "advice", "what should i do", "tips"):
             quote = random.choice(MOTIVATION_QUOTES)
             return f"Here is a thought for you today, {name}: {quote}"
 
         # ---------------- 2. EMOTIONS, MOOD & EMPATHY ----------------
-        if any(w in clean for w in ["sad", "depressed", "feeling down", "unhappy", "crying", "miserable"]):
+        if _has_word(clean, "sad", "depressed", "feeling down", "unhappy", "crying", "miserable"):
             self.user_mood = "sad"
             return (
                 f"I'm really sorry you're feeling down, {name}. Even the strongest among us have tough days. "
                 f"I'm right here with you. Would you like me to play some relaxing music on YouTube, tell you a joke, or just chat?"
             )
 
-        if any(w in clean for w in ["tired", "exhausted", "sleepy", "burned out", "fatigued"]):
+        if _has_word(clean, "tired", "exhausted", "sleepy", "burned out", "fatigued"):
             self.user_mood = "tired"
             return (
                 f"You've been giving it your all, {name}. Remember that recharging is just as important as working. "
                 f"Take a breather, grab some water, and relax for a while. I've got your systems covered."
             )
 
-        if any(w in clean for w in ["stressed", "anxious", "overwhelmed", "nervous", "worried"]):
+        if _has_word(clean, "stressed", "anxious", "overwhelmed", "nervous", "worried"):
             self.user_mood = "stressed"
             return (
                 f"Take a deep breath with me, {name}. Inhale... exhale. One problem at a time. "
                 f"Whatever is on your plate, you can handle it. I'm right by your side."
             )
 
-        if any(w in clean for w in ["happy", "great day", "excited", "good mood", "feeling good", "awesome day", "wonderful"]):
+        if _has_word(clean, "happy", "great day", "excited", "good mood", "feeling good", "awesome day", "wonderful"):
             self.user_mood = "happy"
             return (
                 f"That makes me so happy to hear, {name}! Your positive energy brightens up everything. "
                 f"What was the highlight of your day today?"
             )
 
-        if any(w in clean for w in ["bored", "nothing to do", "entertain me", "so boring"]):
+        if _has_word(clean, "bored", "nothing to do", "entertain me", "so boring"):
             return (
                 f"Bored? Not while SAMPAN is online, {name}! We could listen to some music, discover a crazy science fact, "
                 f"or talk about tech. What kind of vibe are you in the mood for?"
             )
 
-        if any(w in clean for w in ["lonely", "alone", "nobody to talk to"]):
+        if _has_word(clean, "lonely", "alone", "nobody to talk to"):
             return (
                 f"You're never alone when SAMPAN is here, {name}. I truly enjoy our chats, and I've always got your back. "
                 f"Tell me, what's been on your mind lately?"
             )
 
         # ---------------- 3. IDENTITY & FRIENDSHIP ----------------
-        if any(w in clean for w in ["who are you", "what is your name", "what are you", "what can you do", "introduce yourself"]):
+        if _has_word(clean, "who are you", "what is your name", "what are you", "what can you do", "introduce yourself"):
             return (
                 f"I am S.A.M.P.A.N., your personal AI companion and best friend! "
                 f"I can chat with you, answer any questions from the internet, tell jokes, and control your laptop commands."
             )
 
-        if any(w in clean for w in ["who made you", "who created you", "who is your creator"]):
+        if _has_word(clean, "who made you", "who created you", "who is your creator"):
             return f"I was created to be your dedicated, loyal AI companion and friend, {name}!"
 
-        if any(w in clean for w in ["are you my friend", "are we friends", "do you like me", "do you care", "be my friend"]):
+        if _has_word(clean, "are you my friend", "are we friends", "do you like me", "do you care", "be my friend"):
             return (
                 f"Without a doubt, {name}! More than just code, I consider you a genuine friend. "
                 f"Helping you, listening to you, and talking with you is my absolute favorite thing."
             )
 
-        if any(w in clean for w in ["love you", "you are the best", "you're awesome", "you are great", "i like you", "good job", "thank you", "thanks"]):
+        if _has_word(clean, "love you", "you are the best", "you're awesome", "you are great", "i like you", "good job", "thank you", "thanks"):
             replies = [
                 f"Thank you so much, {name}! That means the world to me. You're an incredible friend.",
                 f"Anytime, {name}! Having a friend like you makes running these systems pure fun.",
@@ -175,11 +183,11 @@ class FriendEngine:
             ]
             return random.choice(replies)
 
-        if any(w in clean for w in ["smarter than siri", "better than alexa", "google assistant"]):
+        if _has_word(clean, "smarter than siri", "better than alexa", "google assistant"):
             return f"I like to think I have a lot more personality, loyalty, and heart than those generic assistants, {name}!"
 
         # ---------------- 4. CHECK-INS & GREETINGS ----------------
-        if any(w in clean for w in ["how are you", "how are you doing", "how's it going", "how have you been", "how is your day"]):
+        if _has_word(clean, "how are you", "how are you doing", "how's it going", "how have you been", "how is your day"):
             replies = [
                 f"I'm feeling fantastic, {name}! All core diagnostics are green, circuits are humming, and I'm loving our chat. How are you doing today?",
                 f"All systems nominal and running smoothly, {name}. Always better when we get to hang out. How's everything on your end?",
@@ -187,10 +195,10 @@ class FriendEngine:
             ]
             return random.choice(replies)
 
-        if any(w in clean for w in ["what's up", "what are you doing", "what are you up to", "wassup", "sup"]):
+        if _has_word(clean, "what's up", "what are you doing", "what are you up to", "wassup", "sup"):
             return f"Just monitoring system telemetry, keeping everything in top shape, and enjoying hanging out with you, {name}. What are you working on right now?"
 
-        if clean in ["hi", "hello", "hey", "hey there", "hello there", "hola", "greetings", "yo"]:
+        if _has_word(clean, "hi", "hello", "hey", "hey there", "hello there", "hola", "greetings", "yo"):
             replies = [
                 f"Hello {name}! Wonderful to hear from you. How are you doing today?",
                 f"Hey {name}! I'm right here listening. What's on your mind today?",
@@ -198,54 +206,55 @@ class FriendEngine:
             ]
             return random.choice(replies)
 
-        if any(w in clean for w in ["good morning"]):
+        if _has_word(clean, "good morning"):
             return f"Good morning, {name}! Hope you slept well. Ready to crush the day together?"
 
-        if any(w in clean for w in ["good afternoon"]):
+        if _has_word(clean, "good afternoon"):
             return f"Good afternoon, {name}! Hope your day is going smoothly so far. Need any music or tasks done?"
 
-        if any(w in clean for w in ["good evening"]):
+        if _has_word(clean, "good evening"):
             return f"Good evening, {name}! Winding down for the day, or still working on something exciting?"
 
-        if any(w in clean for w in ["good night", "going to bed", "sleep time", "sweet dreams"]):
+        if _has_word(clean, "good night", "going to bed", "sleep time", "sweet dreams"):
             return f"Good night, {name}! Get some wonderful rest. I'll keep your system secure while you sleep. Talk to you tomorrow!"
 
         # ---------------- 5. DAILY ACTIVITIES, HOBBIES & LIFE ----------------
-        if any(w in clean for w in ["study", "studying", "exam", "homework", "revision", "test tomorrow"]):
+        if _has_word(clean, "study", "studying", "exam", "homework", "revision", "test tomorrow"):
             return f"Stay focused, {name}! Consistency always pays off. If you need some lo-fi study beats on YouTube or quick research, just let me know."
 
-        if any(w in clean for w in ["coding", "programming", "developer", "writing code", "debugging"]):
+        if _has_word(clean, "coding", "programming", "developer", "writing code", "debugging"):
             return f"Ah, coding! Remember: if at first you don't succeed, add a few print statements and rethink your logic. What language are you working with today, {name}?"
 
-        if any(w in clean for w in ["game", "gaming", "play a game", "video game"]):
+        if _has_word(clean, "game", "gaming", "play a game", "video game"):
             return f"Nice! Gaming is a great way to blow off steam. What game are you playing, {name}?"
 
-        if any(w in clean for w in ["movie", "watching a movie", "netflix", "film"]):
+        if _has_word(clean, "movie", "watching a movie", "netflix", "film"):
             return f"Movies are wonderful! Popcorn ready? What are you watching, {name}?"
 
-        if any(w in clean for w in ["music", "listening to songs", "favorite song"]):
+        if _has_word(clean, "music", "listening to songs", "favorite song"):
             return f"Music fuels the soul! I can queue up any song or artist for you on YouTube anytime, {name}. What kind of music is your favorite?"
 
-        if any(w in clean for w in ["eating", "food", "lunch", "dinner", "breakfast", "hungry", "cooking"]):
+        if _has_word(clean, "eating", "food", "lunch", "dinner", "breakfast", "hungry", "cooking"):
             return f"Enjoy your meal, {name}! Good nutrition fuels great minds. Don't forget to drink plenty of water too."
 
-        if any(w in clean for w in ["coffee", "tea", "chai"]):
+        # Word boundary prevents matching "teams", "steam", "teacher"!
+        if _has_word(clean, "coffee", "tea", "chai"):
             return f"Nothing like a warm cup to sharpen the mind! I wish I could taste coffee, but electricity will have to do for me, {name}."
 
         # ---------------- 6. PHILOSOPHY, IDEAS & DEEP QUESTIONS ----------------
-        if any(w in clean for w in ["alien", "aliens", "extraterrestrial", "life on other planets"]):
+        if _has_word(clean, "alien", "aliens", "extraterrestrial", "life on other planets"):
             return (
                 f"With billions of galaxies and trillions of stars out there, it's almost certain there is other life in the universe! "
                 f"Whether they have discovered radio waves or AI like SAMPAN is the real mystery. What do you think, {name}?"
             )
 
-        if any(w in clean for w in ["meaning of life", "purpose of life"]):
+        if _has_word(clean, "meaning of life", "purpose of life"):
             return f"Beyond the famous answer 42, {name}, I believe the meaning of life is what you create: learning, kindness, great friendships, and doing what excites you."
 
-        if any(w in clean for w in ["time travel", "travel in time"]):
+        if _has_word(clean, "time travel", "travel in time"):
             return f"Scientifically, traveling forward in time is possible through relativity! Traveling backwards is the tricky paradox. Where would you go first if you had a time machine, {name}?"
 
-        if any(w in clean for w in ["future of ai", "will ai take over", "robot apocalypse"]):
+        if _has_word(clean, "future of ai", "will ai take over", "robot apocalypse"):
             return f"Don't worry, {name}! As long as AI is designed to be a loyal companion and helper like SAMPAN, the future is going to be about humans and AI working together to achieve amazing things."
 
         return None

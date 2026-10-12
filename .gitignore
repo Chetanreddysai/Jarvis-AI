@@ -11,6 +11,7 @@ browser_profile/
 static/audio_cache/
 screenshots/
 config.json
+sampan_memory.json
 *.log
 
 # OS & Editors

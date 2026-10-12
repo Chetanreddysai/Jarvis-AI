@@ -14,6 +14,7 @@ from pathlib import Path
 import system_controller
 import friend_chat
 import knowledge_engine
+import memory_engine
 
 # Configuration file for API keys and preferences
 CONFIG_FILE = Path(__file__).parent / "config.json"
@@ -107,6 +108,7 @@ class SampanBrain:
     def __init__(self):
         self.config = load_config()
         self.friend = friend_chat.FriendEngine()
+        self.memory = memory_engine.MemoryEngine()
 
     def reload_config(self):
         self.config = load_config()
@@ -114,7 +116,7 @@ class SampanBrain:
     def process_command(self, raw_input: str) -> dict:
         """
         Parses voice or text input and routes to OS actions, live knowledge,
-        or companion AI reasoning.
+        memory learning, or companion AI reasoning.
         """
         self.reload_config()
         if not raw_input or not raw_input.strip():
@@ -125,12 +127,10 @@ class SampanBrain:
                 "details": None
             }
 
-        cmd = raw_input.lower().strip()
-        # Clean wake word prefixes
-        wake_words = ["sampan", "hey sampan", "ok sampan", "okay sampan", "listen sampan", "sampan bro", "hello sampan"]
-        for ww in wake_words:
-            if cmd.startswith(ww):
-                cmd = cmd[len(ww):].strip(",. ").strip()
+        # Universal wake-word and polite filler stripping anywhere in sentence
+        cmd = re.sub(r'\b(?:hey|hi|hello|ok|okay|listen|yo)?\s*(?:sampan|sam\s*pan|shampan|sompan)\b', '', raw_input.lower(), flags=re.I)
+        cmd = re.sub(r'^(?:can you\s+|could you\s+|please\s+|would you\s+|will you\s+)+', '', cmd.strip(), flags=re.I)
+        cmd = re.sub(r'\s+please$', '', cmd.strip(), flags=re.I).strip(",.!? ")
 
         # Handle empty command after stripping wake word
         if not cmd:
@@ -141,13 +141,65 @@ class SampanBrain:
                 "details": None
             }
 
-        user_name = self.config.get("user_name", "my friend")
+        # Resolve user name from persistent memory first
+        user_name = self.memory.get_user_name() or self.config.get("user_name", "my friend")
         if not user_name or user_name.lower() == "sir":
             user_name = "my friend"
 
-        # ---------------- 0. COMPANION CHIT-CHAT & GREETINGS ----------------
+        # ---------------- 0.1 PERSISTENT MEMORY & LEARNING ----------------
+        mem_reply = self.memory.handle_memory_request(cmd, user_name)
+        if mem_reply:
+            self.memory.record_topic(raw_input)
+            self.friend.record_turn(raw_input, mem_reply)
+            return {
+                "success": True,
+                "action": "memory_engine",
+                "speech": mem_reply,
+                "details": None
+            }
+
+        # ---------------- 0.2 LEARNED CUSTOM SHORTCUTS ----------------
+        learned_action = self.memory.get_shortcut(cmd)
+        if learned_action:
+            return self.process_command(learned_action)
+
+        # ---------------- 0.3 TYPING & DICTATION ----------------
+        type_match = re.match(r"(?:type|write|dictate)\s+(.+)", cmd)
+        if type_match:
+            text_to_type = type_match.group(1).strip()
+            text_to_type = text_to_type.replace("at the rate", "@").replace(" dot ", ".").replace(" dot", ".")
+            system_controller.type_text_into_window(text_to_type)
+            return {
+                "success": True,
+                "action": "type_text",
+                "speech": f"Typed that for you, {user_name}!",
+                "details": {"typed": text_to_type}
+            }
+
+        if cmd in ["press enter", "hit enter", "press the enter key"]:
+            system_controller.type_text_into_window("\n")
+            return {"success": True, "action": "press_enter", "speech": "Pressed enter.", "details": None}
+
+        # ---------------- 0.4 COMPOUND WEB SERVICE LAUNCHING ----------------
+        # e.g. "open teams in chrome", "open gmail in edge", "open youtube in browser"
+        web_browser_match = re.match(r"(?:open|launch|start)\s+(.+?)\s+in\s+(chrome|edge|browser)", cmd)
+        if web_browser_match:
+            svc_target = web_browser_match.group(1).strip()
+            browser_target = web_browser_match.group(2).strip()
+            ok, msg = system_controller.open_web_service_in_browser(svc_target, browser_target)
+            speech = f"Opening {svc_target} in {browser_target} for you, {user_name}!" if ok else f"I couldn't launch {svc_target} in {browser_target}."
+            return {"success": ok, "action": "open_web_browser", "speech": speech, "details": {"service": svc_target, "browser": browser_target}}
+
+        # ---------------- 0.5 DIRECT APP & WEB SERVICE MENTIONS ----------------
+        # e.g. "edge", "chrome", "notepad", "calculator", "word", "excel", "teams", "spotify", "youtube"
+        if cmd in system_controller.APP_REGISTRY or cmd in system_controller.WEB_SERVICES or cmd in ["edge", "chrome", "notepad", "calculator", "word", "excel", "teams", "spotify", "youtube", "whatsapp", "gmail"]:
+            ok, msg = system_controller.open_application(cmd)
+            return {"success": ok, "action": "open_app", "speech": f"Opening {cmd} for you, {user_name}!", "details": {"target": cmd}}
+
+        # ---------------- 0.6 COMPANION CHIT-CHAT & GREETINGS ----------------
         companion_reply = self.friend.match_companion_chit_chat(cmd, user_name)
         if companion_reply:
+            self.memory.record_topic(raw_input)
             self.friend.record_turn(raw_input, companion_reply)
             return {
                 "success": True,
