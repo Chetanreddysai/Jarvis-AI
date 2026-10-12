@@ -52,25 +52,23 @@ def main():
     print("   Listening continuously in the background...")
     print("=" * 60)
 
-    # Initialize speech recognition
+    # Initialize optimized high-speed speech recognition
     import speech_recognition as sr
     r = sr.Recognizer()
     r.energy_threshold = 300
-    r.dynamic_energy_threshold = True
-    r.dynamic_energy_adjustment_damping = 0.15
-    r.dynamic_energy_ratio = 1.5
-    r.pause_threshold = 1.1
-    r.non_speaking_duration = 0.8
+    r.pause_threshold = 0.65       # Fast silence cutoff (reduced from 1.1s)
+    r.non_speaking_duration = 0.3  # Snappy audio buffer (reduced from 0.8s)
     
     try:
         mic = sr.Microphone()
         with mic as source:
-            r.adjust_for_ambient_noise(source, duration=1.2)
-            if r.energy_threshold < 250:
-                r.energy_threshold = 250
+            r.adjust_for_ambient_noise(source, duration=0.8)
+            # Lock firm noise floor so background room noise never delays speech cutoff
+            r.energy_threshold = max(300, r.energy_threshold)
+            r.dynamic_energy_threshold = False
     except Exception as e:
         logging.error(f"Microphone initialization failed: {e}")
-        voice_engine.speak("Microphone hardware error. Please check your audio settings.")
+        voice_engine.speak_fast("Microphone hardware error. Please check your audio settings.")
         return
 
     # Announce ready status through speakers
@@ -87,25 +85,20 @@ def main():
             with mic as source:
                 audio = r.listen(source, timeout=6, phrase_time_limit=15)
             
+            # Fast direct speech recognition in user accent
+            lang = brain.config.get("speech_language", "en-IN")
             raw_text = ""
-            # Multi-accent recognition: primary en-IN with fallback to en-US
             try:
-                raw_text = r.recognize_google(audio, language="en-IN").strip()
+                raw_text = r.recognize_google(audio, language=lang).strip()
             except (sr.UnknownValueError, sr.RequestError):
                 pass
-
-            if not raw_text:
-                try:
-                    raw_text = r.recognize_google(audio, language="en-US").strip()
-                except Exception:
-                    raw_text = ""
 
             now = time.time()
             if not raw_text:
                 continue
 
-            # Duplicate suppression within 2.0 seconds
-            if raw_text.lower() == last_cmd_text and (now - last_cmd_time) < 2.0:
+            # Duplicate suppression within 1.8 seconds
+            if raw_text.lower() == last_cmd_text and (now - last_cmd_time) < 1.8:
                 continue
             
             last_cmd_text = raw_text.lower()
@@ -121,9 +114,11 @@ def main():
             logging.info(f"SAMPAN response: '{speech}' (Action: {action})")
             print(f"[SAMPAN]: \"{speech}\"")
 
-            # Speak directly through laptop speakers (blocks while speaking to avoid mic feedback)
+            # Dual-tier speech: instant SAPI / cached playback for fast actions
             if speech:
-                voice_engine.speak(speech)
+                v_mode = brain.config.get("voice_mode", "neural")
+                # For rapid hardware actions, prefer fast mode if configured
+                voice_engine.speak(speech, mode=v_mode)
 
             # Handle shutdown command
             if action == "shutdown_sampan":
@@ -137,7 +132,7 @@ def main():
             pass
         except Exception as e:
             logging.warning(f"Listen loop warning: {e}")
-            time.sleep(0.5)
+            time.sleep(0.3)
 
 if __name__ == "__main__":
     main()

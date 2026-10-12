@@ -25,6 +25,8 @@ DEFAULT_CONFIG = {
     "wake_word": "sampan",
     "voice_speed": "+0%",
     "voice_pitch": "+0Hz",
+    "voice_mode": "neural",
+    "speech_language": "en-IN",
     "sound_effects": True,
     "system_notifications": True
 }
